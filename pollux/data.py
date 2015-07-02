@@ -10,13 +10,29 @@ Contains the two upper limits for "light" and "medium" symptoms. Everything
 causes has strong symptoms.
 '''
 
+class1 = Threshold(10, 50)
+class2 = Threshold(5, 30)
+class3 = Threshold(3, 15)
+class4 = Threshold(2, 6)
+
+
+class SymptomStrength:
+
+    UNKNOWN = -999
+    NONE = 0
+    LOW = 10
+    MEDIUM = 20
+    HIGH = 30
+
+
 THRESHOLDS = {
-    'hazel': Threshold(10, 50),
-    'alder': Threshold(10, 50),
-    'oak': Threshold(10, 50),
-    'grass': Threshold(5, 30),
-    'plantain': Threshold(3, 15),
-    'sorrel': Threshold(3, 15),
-    'fat hen': Threshold(3, 15),
-    'mugwort': Threshold(2, 6)
+    'corylus': class1,
+    'alnus': class1,
+    'betula': class1,
+    'quercus': class1,
+    'gramineae': class2,
+    'plantago': class3,
+    'rumex': class3,
+    'chenopodium': class3,
+    'artemisia': class4
 }

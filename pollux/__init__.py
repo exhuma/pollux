@@ -2,8 +2,11 @@ from collections import namedtuple
 from datetime import date as makedate
 from re import compile
 from time import strptime
+from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup
+
+from .data import THRESHOLDS, SymptomStrength
 
 P_LNAME = compile(r'\((.*?)\)')
 
@@ -26,3 +29,44 @@ def parse(data):
         for date, value in zip(dates, values):
             output.add(Datum(date, lname, value))
     return output
+
+
+def warnings(data, date):
+    output = {}
+    for row in data:
+        if row.date != date:
+            continue
+
+        key = row.lname.lower()
+        threshold = THRESHOLDS.get(key)
+        if threshold:
+            if row.value >= threshold.medium:
+                output[key] = SymptomStrength.HIGH
+            elif row.value >= threshold.light:
+                output[key] = SymptomStrength.MEDIUM
+            elif row.value > 0:
+                output[key] = SymptomStrength.LOW
+
+    return output
+
+
+class Probe:
+
+    def __init__(self, httplib, emitlib):
+        self.httplib = httplib
+        self.emitlib = emitlib
+
+    def execute(self, date):
+        data = [
+            ('qsPage', 'data'),
+            ('year', date.strftime('%Y')),
+            ('week', date.strftime('%W')),
+        ]
+        query = urlencode(data)
+        url = 'http://www.pollen.lu/index.php?' + query
+        response = self.httplib.get(url)
+
+        data = parse(response.text)
+        wrn = warnings(data, date)
+        for genus, symptom_strength in wrn.items():
+            self.emitlib.warn(genus, symptom_strength)
