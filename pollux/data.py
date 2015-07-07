@@ -16,15 +16,6 @@ class3 = Threshold(3, 15)
 class4 = Threshold(2, 6)
 
 
-class SymptomStrength:
-
-    UNKNOWN = -999
-    NONE = 0
-    LOW = 10
-    MEDIUM = 20
-    HIGH = 30
-
-
 THRESHOLDS = {
     'corylus': class1,
     'alnus': class1,

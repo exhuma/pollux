@@ -3,8 +3,8 @@ from pkg_resources import resource_filename
 from unittest.mock import MagicMock, call
 import unittest
 
-from pollux import Datum, warnings
-from pollux.data import SymptomStrength
+from pollux import warnings
+from pollux.model import Datum, SymptomStrength
 
 
 class TestWarnings(unittest.TestCase):

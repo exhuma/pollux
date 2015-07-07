@@ -490,6 +490,3 @@ class TestParser(unittest.TestCase):
             Datum(date(2014, 4, 12), 'Tilia', 0),
         }
         self.assertCountEqual(result, expected)
-
-
-

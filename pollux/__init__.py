@@ -1,4 +1,3 @@
-from collections import namedtuple
 from datetime import date as makedate
 from re import compile
 from time import strptime
@@ -6,11 +5,11 @@ from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup
 
-from .data import THRESHOLDS, SymptomStrength
+from .data import THRESHOLDS
+from .model import SymptomStrength, Datum
 
 P_LNAME = compile(r'\((.*?)\)')
 
-Datum = namedtuple('Datum', 'date, lname, value')
 
 
 def parse(data):
