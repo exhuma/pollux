@@ -14,6 +14,9 @@ LOG = logging.getLogger(__name__)
 
 
 def parse(data):
+    output = set()
+    if not data:
+        return output
     soup = BeautifulSoup(data, 'html.parser')
     tables = soup.find_all('table')
     rows = tables[5].find_all('tr')
@@ -21,7 +24,6 @@ def parse(data):
     data = rows[2:]
     dates = [makedate(*strptime(cell.text, '%Y-%m-%d')[0:3])
              for cell in dates_row.find_all('td')[1:]]
-    output = set()
     for row in data:
         cells = row.find_all('td')
         lname = P_LNAME.findall(cells[0].text)[0]
@@ -70,7 +72,7 @@ class Probe:
         data = [
             ('qsPage', 'data'),
             ('year', date.strftime('%Y')),
-            ('week', date.strftime('%W')),
+            ('week', date.strftime('%U')),
         ]
         query = urlencode(data)
         url = 'http://www.pollen.lu/index.php?' + query

@@ -63,3 +63,19 @@ class TestMain(unittest.TestCase):
             call('betula', 30),
             call('quercus', 20),
         ], any_order=True)
+
+    def test_week_startday(self):
+        '''
+        The week on pollen.lu starts on a Sunday. We need to make sure this is
+        correctly called.
+        '''
+        from pollux import Probe
+
+        http_get = MagicMock()
+        http_get().return_value = MagicMock(text='')
+        httplib = MagicMock(get=http_get())
+        emitlib = MagicMock()
+        probe = Probe(httplib, emitlib)
+        probe.execute(date(2015, 7, 5))
+        httplib.get.assert_called_with(
+            'http://www.pollen.lu/index.php?qsPage=data&year=2015&week=27')
