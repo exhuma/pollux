@@ -2,6 +2,7 @@ from datetime import date as makedate
 from re import compile
 from time import strptime
 from urllib.parse import urlencode
+import logging
 
 from bs4 import BeautifulSoup
 
@@ -9,7 +10,7 @@ from .data import THRESHOLDS
 from .model import SymptomStrength, Datum
 
 P_LNAME = compile(r'\((.*?)\)')
-
+LOG = logging.getLogger(__name__)
 
 
 def parse(data):
@@ -27,6 +28,7 @@ def parse(data):
         values = [int(cell.text) for cell in cells[1:]]
         for date, value in zip(dates, values):
             output.add(Datum(date, lname, value))
+    LOG.debug('Retrieved data: %r', output)
     return output
 
 
@@ -45,7 +47,15 @@ def warnings(data, date):
                 output[key] = SymptomStrength.MEDIUM
             elif row.value > 0:
                 output[key] = SymptomStrength.LOW
+            elif row.value == 0:
+                LOG.debug('No warning needed for %r', row)
+            else:
+                # value < 0
+                LOG.warning('Illegal value: %r', row)
+        else:
+            LOG.debug('Key for row %r not found in thresholds!', row)
 
+    LOG.debug('Determined %d warnings.', len(output))
     return output
 
 
@@ -56,6 +66,7 @@ class Probe:
         self.emitlib = emitlib
 
     def execute(self, date):
+        LOG.debug('Executing probe for %s', date)
         data = [
             ('qsPage', 'data'),
             ('year', date.strftime('%Y')),
