@@ -58,7 +58,7 @@ class TestMain(unittest.TestCase):
         probe.execute(date(2014, 4, 11))
         httplib.get.assert_called_with(
             'http://www.pollen.lu/index.php?qsPage=data&year=2014&week=14')
-        emitlib.warn.assert_has_calls([
+        emitlib.emit.assert_has_calls([
             call('gramineae', 10),
             call('betula', 30),
             call('quercus', 20),

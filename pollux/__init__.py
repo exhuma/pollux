@@ -81,4 +81,4 @@ class Probe:
         data = parse(response.text)
         wrn = warnings(data, date)
         for genus, symptom_strength in wrn.items():
-            self.emitlib.warn(genus, symptom_strength)
+            self.emitlib.emit(genus, symptom_strength)
