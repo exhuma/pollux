@@ -59,9 +59,9 @@ class TestMain(unittest.TestCase):
         httplib.get.assert_called_with(
             'http://www.pollen.lu/index.php?qsPage=data&year=2014&week=14')
         emitlib.emit.assert_has_calls([
-            call('gramineae', 10),
-            call('betula', 30),
-            call('quercus', 20),
+            call('gramineae', 'low'),
+            call('betula', 'high'),
+            call('quercus', 'medium'),
         ], any_order=True)
 
     def test_week_startday(self):
