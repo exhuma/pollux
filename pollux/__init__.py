@@ -54,8 +54,10 @@ def warnings(data, date):
             else:
                 # value < 0
                 LOG.warning('Illegal value: %r', row)
+                output[key] = SymptomStrength.ERROR
         else:
             LOG.debug('Key for row %r not found in thresholds!', row)
+            output[key] = SymptomStrength.UNKNOWN
 
     LOG.debug('Determined %d warnings.', len(output))
     return output
