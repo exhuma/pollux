@@ -11,27 +11,26 @@ class TestWarnings(unittest.TestCase):
 
     def setUp(self):
         self.data = {
-            # earlier date
+            # untested date a
             Datum(date(2014, 4, 12), 'gramineae', 100),
             Datum(date(2014, 4, 12), 'quercus', 100),
             Datum(date(2014, 4, 12), 'betula', 100),
-            # tested date
+            # tested date a
+            Datum(date(2014, 4, 11), 'betula', 80),
             Datum(date(2014, 4, 11), 'gramineae', 3),
             Datum(date(2014, 4, 11), 'quercus', 11),
-            Datum(date(2014, 4, 11), 'betula', 80),
-            # later date
+            # untested date b
             Datum(date(2014, 4, 13), 'gramineae', 200),
             Datum(date(2014, 4, 13), 'quercus', 200),
             Datum(date(2014, 4, 13), 'betula', 200),
         }
-        self.tested_date = date(2014, 4, 11)
 
     def test_warnings(self):
-        result = warnings(self.data, self.tested_date)
+        result = warnings(self.data, date(2014, 4, 11))
         expected = {
             'betula': SymptomStrength.HIGH,
-            'quercus': SymptomStrength.MEDIUM,
             'gramineae': SymptomStrength.LOW,
+            'quercus': SymptomStrength.MEDIUM,
         }
         self.assertEqual(result, expected)
 

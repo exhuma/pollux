@@ -17,14 +17,15 @@ class4 = Threshold(2, 6)
 
 
 THRESHOLDS = {
-    'corylus': class1,
     'alnus': class1,
     'betula': class1,
+    'corylus': class1,
+    'fraxinus': class1,
     'quercus': class1,
     'gramineae': class2,
+    'chenopodium': class3,
     'plantago': class3,
     'rumex': class3,
-    'chenopodium': class3,
     'artemisia': class4
 }
 
