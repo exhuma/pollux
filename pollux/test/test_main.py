@@ -23,6 +23,14 @@ class TestWarnings(unittest.TestCase):
             Datum(date(2014, 4, 13), 'gramineae', 200),
             Datum(date(2014, 4, 13), 'quercus', 200),
             Datum(date(2014, 4, 13), 'betula', 200),
+            # tested date b
+            Datum(date(2014, 4, 14), 'betula', -10),
+            Datum(date(2014, 4, 14), 'gramineae', 0),
+            Datum(date(2014, 4, 14), 'quercus', 0),
+            # tested date c
+            Datum(date(2014, 4, 15), 'betula', 0),
+            Datum(date(2014, 4, 15), 'gramineae', 0),
+            Datum(date(2014, 4, 15), 'quercus', 0),
         }
 
     def test_warnings(self):
@@ -32,6 +40,18 @@ class TestWarnings(unittest.TestCase):
             'gramineae': SymptomStrength.LOW,
             'quercus': SymptomStrength.MEDIUM,
         }
+        self.assertEqual(result, expected)
+
+    def test_warnings_error(self):
+        result = warnings(self.data, date(2014, 4, 14))
+        expected = {
+            'betula': SymptomStrength.ERROR,
+        }
+        self.assertEqual(result, expected)
+
+    def test_warnings_none(self):
+        result = warnings(self.data, date(2014, 4, 15))
+        expected = {}
         self.assertEqual(result, expected)
 
     def test_warnings_no_data(self):
