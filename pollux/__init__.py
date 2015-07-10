@@ -81,6 +81,6 @@ class Probe:
         response = self.httplib.get(url)
 
         data = parse(response.text)
-        wrn = warnings(data, date)
-        for genus, symptom_strength in wrn.items():
-            self.emitlib.emit(genus, symptom_strength)
+
+        filtered = {datum for datum in data if datum.date == date}
+        self.emitlib.disseminate(date, filtered)

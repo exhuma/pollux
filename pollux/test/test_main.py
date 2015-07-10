@@ -77,11 +77,44 @@ class TestMain(unittest.TestCase):
         probe.execute(date(2014, 4, 11))
         httplib.get.assert_called_with(
             'http://www.pollen.lu/index.php?qsPage=data&year=2014&week=14')
-        emitlib.emit.assert_has_calls([
-            call('gramineae', 'low'),
-            call('betula', 'high'),
-            call('quercus', 'medium'),
-        ], any_order=True)
+        emitlib.disseminate.assert_called_with(
+            date(2014, 4, 11),
+            {
+                Datum(date(2014, 4, 11), 'Acer', 2),
+                Datum(date(2014, 4, 11), 'Aesculus', 0),
+                Datum(date(2014, 4, 11), 'Alnus', 0),
+                Datum(date(2014, 4, 11), 'Ambrosia', 0),
+                Datum(date(2014, 4, 11), 'Artemisia', 0),
+                Datum(date(2014, 4, 11), 'Asteraceae', 0),
+                Datum(date(2014, 4, 11), 'Betula', 117),
+                Datum(date(2014, 4, 11), 'Carpinus', 5),
+                Datum(date(2014, 4, 11), 'Castanea', 0),
+                Datum(date(2014, 4, 11), 'Chenopodium', 0),
+                Datum(date(2014, 4, 11), 'Corylus', 0),
+                Datum(date(2014, 4, 11), 'Cupressaceae', 3),
+                Datum(date(2014, 4, 11), 'Cyperaceae', 1),
+                Datum(date(2014, 4, 11), 'Ericaceae', 0),
+                Datum(date(2014, 4, 11), 'Fagus', 112),
+                Datum(date(2014, 4, 11), 'Filipendula', 0),
+                Datum(date(2014, 4, 11), 'Fraxinus', 5),
+                Datum(date(2014, 4, 11), 'Gramineae', 1),
+                Datum(date(2014, 4, 11), 'Juglans', 1),
+                Datum(date(2014, 4, 11), 'Juncaceae', 0),
+                Datum(date(2014, 4, 11), 'Larix', 1),
+                Datum(date(2014, 4, 11), 'Pinaceae', 13),
+                Datum(date(2014, 4, 11), 'Plantago', 0),
+                Datum(date(2014, 4, 11), 'Platanus', 4),
+                Datum(date(2014, 4, 11), 'Populus', 0),
+                Datum(date(2014, 4, 11), 'Quercus', 15),
+                Datum(date(2014, 4, 11), 'Rumex', 0),
+                Datum(date(2014, 4, 11), 'Salix', 5),
+                Datum(date(2014, 4, 11), 'Sambucus', 0),
+                Datum(date(2014, 4, 11), 'Tilia', 0),
+                Datum(date(2014, 4, 11), 'Ulmus', 0),
+                Datum(date(2014, 4, 11), 'Umbellifereae', 0),
+                Datum(date(2014, 4, 11), 'Urtica', 0)
+            }
+        )
 
     def test_week_startday(self):
         '''
