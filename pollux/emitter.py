@@ -25,7 +25,7 @@ class Emitter:
     def add_handler(self, handler):
         self.handlers.add(handler)
 
-    def emit(self, pollen_family, symptom_strength):
+    def warn(self, pollen_family, symptom_strength):
         for handler in self.handlers:
             handler.handle(pollen_family, symptom_strength)
 
