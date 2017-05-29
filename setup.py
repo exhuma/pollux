@@ -8,6 +8,7 @@ setup(
         'beautifulsoup4',
         'config_resolver',
         'requests',
+        'sqlalchemy',
     ],
     include_package_data=True,
     author="Michel Albert",

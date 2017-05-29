@@ -1,4 +1,5 @@
 from datetime import date as makedate
+from functools import lru_cache
 from re import compile
 from time import strptime
 from urllib.parse import urlencode
@@ -63,6 +64,24 @@ def warnings(data, date):
     return output
 
 
+@lru_cache(maxsize=20)
+def fetch_week(year, week, httplib):
+    """
+    Fetches values for one specific week.
+    """
+    LOG.debug('Fetching data for year %r, week %r from the web', year, week)
+    url_params = [
+        ('qsPage', 'data'),
+        ('year', year),
+        ('week', week),
+    ]
+    query = urlencode(url_params)
+    url = 'http://www.pollen.lu/index.php?' + query
+    response = httplib.get(url)
+    data = parse(response.text)
+    return data
+
+
 class Probe:
 
     def __init__(self, httplib, emitlib):
@@ -71,16 +90,8 @@ class Probe:
 
     def execute(self, date):
         LOG.debug('Executing probe for %s', date)
-        data = [
-            ('qsPage', 'data'),
-            ('year', date.strftime('%Y')),
-            ('week', date.strftime('%U')),
-        ]
-        query = urlencode(data)
-        url = 'http://www.pollen.lu/index.php?' + query
-        response = self.httplib.get(url)
-
-        data = parse(response.text)
-
+        data = fetch_week(date.strftime('%Y'),
+                          date.strftime('%U'),
+                          self.httplib)
         filtered = {datum for datum in data if datum.date == date}
         self.emitlib.disseminate(date, filtered)
