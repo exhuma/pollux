@@ -1,9 +1,17 @@
+'''
+Emitters are responsible to work with both warningins and raw pollen data.
+Emitters can have one or more handlers which /do/ something with the data they
+are given.
+'''
 import logging
 
 LOG = logging.getLogger(__name__)
 
 
 class MemoryHandler:
+    """
+    Simply keep the values in-memory
+    """
 
     def __init__(self):
         self.emitted_values = set()

@@ -1,5 +1,7 @@
 '''
 Reaction/Symptom thresholds. Based on P. G. von Wahl, 1999
+
+This module contains static data used in pollux.
 '''
 from collections import namedtuple
 
