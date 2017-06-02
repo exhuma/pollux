@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
-from pkg_resources import resource_string
+
 setup(
     name="pollux",
-    version=resource_string('pollux', 'version.txt').decode('ascii').strip(),
+    version=open('pollux/version.txt').read().strip(),
     packages=find_packages(),
     install_requires=[
         'beautifulsoup4',
