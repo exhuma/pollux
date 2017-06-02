@@ -1,4 +1,5 @@
 from datetime import date as makedate
+from functools import lru_cache
 from re import compile
 from time import strptime
 from urllib.parse import urlencode
@@ -63,6 +64,7 @@ def warnings(data, date):
     return output
 
 
+@lru_cache(maxsize=20)
 def fetch_week(year, week, httplib):
     """
     Fetches values for one specific week.
