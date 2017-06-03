@@ -40,6 +40,9 @@ def parse_html(data):
 
 
 def warnings(data, date):
+    '''
+    Returns warning classifications for a given date.
+    '''
     output = {}
     for row in data:
         if row.date != date:
