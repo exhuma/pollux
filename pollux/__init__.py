@@ -14,7 +14,11 @@ P_LNAME = compile(r'\((.*?)\)')
 LOG = logging.getLogger(__name__)
 
 
-def parse(data):
+def parse_html(data):
+    '''
+    Parses HTML output from pollen.lu and returns structured data (a list of
+    ``Datum`` instances).
+    '''
     output = set()
     if not data:
         return output
@@ -78,7 +82,7 @@ def fetch_week(year, week, httplib):
     query = urlencode(url_params)
     url = 'http://www.pollen.lu/index.php?' + query
     response = httplib.get(url)
-    data = parse(response.text)
+    data = parse_html(response.text)
     return data
 
 
