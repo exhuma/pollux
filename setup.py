@@ -15,4 +15,9 @@ setup(
     description="Pollen alert service for Luxembourg",
     license="BSD",
     url="https://github.com/exhuma",
+    entry_points={
+        'console_scripts': [
+            'fetch_pollen_csv=pollux.cli:fetch_csv'
+        ]
+    }
 )
