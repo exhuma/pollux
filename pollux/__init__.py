@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from .data import THRESHOLDS
 from .model import SymptomStrength, Datum
 
-P_LNAME = compile(r'\((.*?)\)')
 LOG = logging.getLogger(__name__)
 
 
@@ -28,11 +27,11 @@ def parse_html(data):
     dates_row = rows[1]
     data = rows[2:]
     dates = [makedate(*strptime(cell.text, '%Y-%m-%d')[0:3])
-             for cell in dates_row.find_all('td')[1:]]
+             for cell in dates_row.find_all('td')[4:]]
     for row in data:
         cells = row.find_all('td')
-        lname = P_LNAME.findall(cells[0].text)[0]
-        values = [int(cell.text) for cell in cells[1:]]
+        lname = cells[1].text
+        values = [int(cell.text) for cell in cells[4:]]
         for date, value in zip(dates, values):
             output.add(Datum(date, lname, value))
     LOG.debug('Retrieved data: %r', output)
