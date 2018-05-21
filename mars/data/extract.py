@@ -60,6 +60,7 @@ def tablify(grib, names):
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument('filename')
+    parser.add_argument('outfile')
     return parser.parse_args()
 
 
@@ -72,6 +73,14 @@ def convert(filename, cols):
     return output
 
 
+def to_csv(filename, header, rows):
+    import csv
+    with open(filename, 'w') as fp:
+        writer = csv.writer(fp)
+        writer.writerow(header)
+        writer.writerows(rows)
+
+
 def main():
     args = parse_args()
     names = [
@@ -82,8 +91,7 @@ def main():
         'Total cloud cover',
     ]
     rows = convert(args.filename, names)
-    for row in rows:
-        print(row)
+    to_csv(args.outfile, names, rows)
 
 
 if __name__ == '__main__':
