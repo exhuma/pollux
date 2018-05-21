@@ -14,6 +14,7 @@ LOG = logging.getLogger(__name__)
 
 def parse_args():
     parser = ArgumentParser()
+    parser.add_argument('year', type=int)
     parser.add_argument('filename')
     return parser.parse_args()
 
@@ -55,7 +56,7 @@ def fetch(year, filename):
 
 def main():
     args = parse_args()
-    fetch(2010, filename=args.filename)
+    fetch(args.year, filename=args.filename)
 
 
 if __name__ == '__main__':
