@@ -16,3 +16,6 @@ RUN apt-get install -y \
     libgrib-api-dev
 RUN cd pygrib && python setup.py build
 RUN cd pygrib && python setup.py install
+ADD extract.py /
+RUN chmod +x /extract.py
+ENTRYPOINT ["/extract.py"]

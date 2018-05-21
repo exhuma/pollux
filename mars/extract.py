@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Script to convert a GRIBS file into a simple 2D-Table.
 
