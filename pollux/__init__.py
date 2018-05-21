@@ -34,7 +34,7 @@ def parse_html(data):
         values = [int(cell.text) for cell in cells[4:]]
         for date, value in zip(dates, values):
             output.add(Datum(date, lname, value))
-    LOG.debug('Retrieved data: %r', output)
+    LOG.debug('Retrieved %d data', len(output))
     return output
 
 

@@ -65,6 +65,7 @@ def fetch_from(start_date, end_date=datetime.now().date(), cache_folder=''):
         cache = None
 
     while start_date <= end_date:
+        LOG.debug('Fetching data for %r', start_date)
         week_number = start_date.isocalendar()[1]
         url_args = [
             ('qsPage', 'data'),

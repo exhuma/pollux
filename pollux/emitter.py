@@ -21,7 +21,7 @@ class MemoryHandler:
         self.emitted_values.add((pollen_family, symptom_strength))
 
     def handle_raw_data(self, data):
-        LOG.info('Memorizing %r', data)
+        LOG.info('Memorizing raw data: %r', data)
         self.disseminated_data = data
 
 
