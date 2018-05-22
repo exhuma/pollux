@@ -86,9 +86,9 @@ def main():
     args = parse_args()
     names = [
         '2 metre temperature',
-        'Albedo',
         'Soil temperature level 1',
         'Soil temperature level 2',
+        'Total column rain water',
         'Total cloud cover',
     ]
     rows = convert(args.filename, names)
