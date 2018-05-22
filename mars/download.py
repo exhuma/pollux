@@ -42,7 +42,7 @@ def fetch(year, filename):
         "number": "0",
         "param": "89.228/139.128/164.128/167.128/170.128/89.228",
         "stream": "enda",
-        "time": "12:00:00",
+        "time": "09:00:00",
         "type": "an",
         "target": filename,
         # north/west/south/east
