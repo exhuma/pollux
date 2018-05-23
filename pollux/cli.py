@@ -20,7 +20,7 @@ def parse_args():
 def fetch_csv():
     args = parse_args()
     if args.verbose:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.INFO)
 
     start = date(args.year, 1, 1)
     end = date(args.year, 12, 31)

@@ -52,6 +52,7 @@ def fetch(year, filename):
 
     server = ECMWFDataServer()
     server.retrieve(args)
+    LOG.info('Data written to %r', args.get('target', 'output'))
 
 
 def main():
