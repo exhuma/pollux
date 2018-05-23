@@ -72,6 +72,7 @@ def parse_args():
     parser.add_argument('outfile')
     parser.add_argument('-l', '--list-names',
                         default=False, action='store_true')
+    parser.add_argument('-n', '--names')
     return parser.parse_args()
 
 
@@ -94,16 +95,10 @@ def to_csv(filename, header, rows):
 
 def main():
     args = parse_args()
-    names = [
-        '2 metre temperature',
-        'Soil temperature level 1',
-        'Soil temperature level 2',
-        'Total column rain water',
-        'Total cloud cover',
-    ]
     if args.list_names:
         list_names(args.filename)
     else:
+        names = [name.strip() for name in args.names.split(',')]
         rows = convert(args.filename, names)
         to_csv(args.outfile, names, rows)
 
