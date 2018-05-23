@@ -18,4 +18,6 @@ RUN cd pygrib && python setup.py build
 RUN cd pygrib && python setup.py install
 ADD extract.py /
 RUN chmod +x /extract.py
+RUN wget -O /tmp/wgrib.c ftp://ftp.cpc.ncep.noaa.gov/wd51we/wgrib/wgrib.c
+RUN (cd /tmp && gcc -o /usr/local/bin/wgrib wgrib.c)
 ENTRYPOINT ["/extract.py"]
