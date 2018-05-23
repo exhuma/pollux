@@ -58,10 +58,20 @@ def tablify(grib, names):
         yield line
 
 
+def list_names(filename):
+    print('Listing names in %r...' % filename)
+    pygrib.tolerate_badgrib_on()
+    grbs = pygrib.open(filename)
+    inspect(grbs)
+    grbs.close()
+
+
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument('filename')
     parser.add_argument('outfile')
+    parser.add_argument('-l', '--list-names',
+                        default=False, action='store_true')
     return parser.parse_args()
 
 
@@ -91,8 +101,11 @@ def main():
         'Total column rain water',
         'Total cloud cover',
     ]
-    rows = convert(args.filename, names)
-    to_csv(args.outfile, names, rows)
+    if args.list_names:
+        list_names(args.filename)
+    else:
+        rows = convert(args.filename, names)
+        to_csv(args.outfile, names, rows)
 
 
 if __name__ == '__main__':
