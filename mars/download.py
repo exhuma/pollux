@@ -32,23 +32,27 @@ def fetch(year, filename):
         alldates.append(current.strftime('%Y%d%m'))
         current += step
 
-    args = {
-
-        "class": "ep",
-        "dataset": "cera20c",
+    overrides = {
         "date": "%s-01-01/to/%s-12-31" % (year, year),
+        # north/west/south/east
+        "area": "50.5/5/49/7",
+        "grid": "1.0/1.0",
+        "target": filename,
+    }
+
+    era_args = {
+        "class": "ea",
+        "dataset": "era5",
         "expver": "1",
         "levtype": "sfc",
         "number": "0",
-        "param": "89.228/139.128/164.128/167.128/170.128/89.228",
+        "param": "136.128/134.128/139.128/164.128/167.128/170.128",
         "stream": "enda",
         "time": "09:00:00",
         "type": "an",
-        "target": filename,
-        # north/west/south/east
-        "area": "50.5/5/49/7",
-        "grid": "1.0/1.0"
     }
+
+    args = {**era_args, **overrides}
 
     server = ECMWFDataServer()
     server.retrieve(args)
