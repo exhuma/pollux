@@ -11,7 +11,8 @@ LOG = logging.getLogger(__name__)
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('year', type=int)
+    parser.add_argument('start_year', type=int)
+    parser.add_argument('end_year', type=int)
     parser.add_argument('outfile')
     parser.add_argument('-v', '--verbose', default=False, action='store_true')
     return parser.parse_args()
@@ -22,8 +23,8 @@ def fetch_csv():
     if args.verbose:
         logging.basicConfig(level=logging.INFO)
 
-    start = date(args.year, 1, 1)
-    end = date(args.year, 12, 31)
+    start = date(args.start_year, 1, 1)
+    end = date(args.end_year, 12, 31)
     rows = sorted(fetch_from(start, end, cache_folder='cache'),
                   key=lambda x: x.date)
 
