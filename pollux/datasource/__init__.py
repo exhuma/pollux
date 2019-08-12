@@ -1,0 +1,38 @@
+import pandas as pd
+from datetime import datetime, timedelta
+
+
+class DataSource:
+
+    @staticmethod
+    def default():
+        return PandasDS()
+
+
+class PandasDS:
+
+    def __init__(self):
+        self.data_frame = pd.read_csv(
+            'foo',
+            index_col=['date'],
+            parse_dates=['date'])
+
+    def recent(self, num_days=7, genera=None):
+        now = datetime.now()
+        start = now - timedelta(days=num_days)
+        subset = self.data_frame.loc[
+            (self.data_frame.index >= start) &
+            (self.data_frame.index <= now)
+        ]
+        genera = genera or subset
+        output = {}
+        for genus in genera:
+            x = [date.isoformat() for date in subset[genus].index]
+            y = list(subset[genus])
+            output[genus] = {
+                'x': x,
+                'y': y,
+                'name': genus,
+                'type': 'bar',
+            }
+        return output
