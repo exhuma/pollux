@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, g, request
-from pollux.datasource import DataSource
+from datetime import datetime
 
+from flask import Blueprint, g, jsonify, request
+from pollux.datasource import DataSource
 
 MAIN = Blueprint('', __name__)
 
@@ -12,11 +13,11 @@ def globals():
         ds = DataSource.default()
         g.data_source = ds
 
+
 @MAIN.after_app_request
 def cors(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
-
 
 
 @MAIN.route('/')
@@ -37,4 +38,13 @@ def recent():
     genera = request.args.getlist('genus')
     print(genera)
     data = g.data_source.recent(num_days=num_days, genera=genera)
+    return jsonify(data)
+
+
+@MAIN.route('/between/<start>/<end>')
+def between(start, end):
+    startDate = datetime.strptime(start, '%Y-%m-%d')
+    endDate = datetime.strptime(end, '%Y-%m-%d')
+    genera = request.args.getlist('genus')
+    data = g.data_source.between(startDate, endDate, genera=genera)
     return jsonify(data)
