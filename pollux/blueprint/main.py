@@ -48,3 +48,9 @@ def between(start, end):
     genera = request.args.getlist('genus')
     data = g.data_source.between(startDate, endDate, genera=genera)
     return jsonify(data)
+
+
+@MAIN.route('/genera')
+def genera():
+    data = g.data_source.genera()
+    return jsonify(data)

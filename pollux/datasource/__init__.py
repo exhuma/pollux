@@ -17,6 +17,9 @@ class PandasDS:
             index_col=['date'],
             parse_dates=['date'])
 
+    def genera(self):
+        return sorted(self.data_frame.columns)
+
     def recent(self, num_days=7, genera=None):
         now = datetime.now()
         start = now - timedelta(days=num_days)
