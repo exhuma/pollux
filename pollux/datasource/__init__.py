@@ -20,12 +20,10 @@ class PandasDS:
     def genera(self):
         return sorted(self.data_frame.columns)
 
-    def recent(self, num_days=7, genera=None):
-        now = datetime.now()
-        start = now - timedelta(days=num_days)
+    def between(self, start, end, genera=None):
         subset = self.data_frame.loc[
             (self.data_frame.index >= start) &
-            (self.data_frame.index <= now)
+            (self.data_frame.index <= end)
         ]
         genera = genera or subset
         output = {}
@@ -39,3 +37,8 @@ class PandasDS:
                 'type': 'bar',
             }
         return output
+
+    def recent(self, num_days=7, genera=None):
+        now = datetime.now()
+        start = now - timedelta(days=num_days)
+        return this.between(start, now, genera=genera)
