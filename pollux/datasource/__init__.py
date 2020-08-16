@@ -41,4 +41,4 @@ class PandasDS:
     def recent(self, num_days=7, genera=None):
         now = datetime.now()
         start = now - timedelta(days=num_days)
-        return this.between(start, now, genera=genera)
+        return self.between(start, now, genera=genera)
