@@ -1,34 +1,35 @@
+import logging
 from datetime import date as makedate
 from functools import lru_cache
 from re import compile
 from time import strptime
+from typing import Any, Dict, Iterable, Set
 from urllib.parse import urlencode
-import logging
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # type: ignore
 
 from .data import THRESHOLDS
-from .model import SymptomStrength, Datum
+from .model import Datum, SymptomStrength
 
 LOG = logging.getLogger(__name__)
 
 
-def parse_html(data):
+def parse_html(data: str) -> Set[Datum]:
     '''
-    Parses HTML output from pollen.lu and returns structured data (a list of
+    Parses HTML output from pollen.lu and returns structured data (a set of
     ``Datum`` instances).
     '''
-    output = set()
+    output = set()  # type: Set[Datum]
     if not data:
         return output
     soup = BeautifulSoup(data, 'html.parser')
     tables = soup.find_all('table')
     rows = tables[5].find_all('tr')
     dates_row = rows[1]
-    data = rows[2:]
+    data_rows = rows[2:]
     dates = [makedate(*strptime(cell.text, '%Y-%m-%d')[0:3])
              for cell in dates_row.find_all('td')[4:]]
-    for row in data:
+    for row in data_rows:
         cells = row.find_all('td')
         lname = cells[1].text
         values = [int(cell.text) for cell in cells[4:]]
@@ -38,7 +39,7 @@ def parse_html(data):
     return output
 
 
-def warnings(data, date):
+def warnings(data: Iterable[Datum], date: makedate) -> Dict[str, SymptomStrength]:
     '''
     Returns warning classifications for a given date.
     '''
@@ -71,7 +72,7 @@ def warnings(data, date):
 
 
 @lru_cache(maxsize=20)
-def fetch_week(year, week, httplib):
+def fetch_week(year: int, week: int, httplib: Any) -> Set[Datum]:
     """
     Fetches values for one specific week.
     """
@@ -90,11 +91,11 @@ def fetch_week(year, week, httplib):
 
 class Probe:
 
-    def __init__(self, httplib, emitlib):
+    def __init__(self, httplib: Any, emitlib: Any) -> None:
         self.httplib = httplib
         self.emitlib = emitlib
 
-    def execute(self, date):
+    def execute(self, date: makedate) -> None:
         LOG.debug('Executing probe for %s', date)
         data = fetch_week(date.strftime('%Y'),
                           date.strftime('%U'),

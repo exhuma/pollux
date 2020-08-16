@@ -1,10 +1,18 @@
-from collections import namedtuple
+from datetime import date
+from enum import Enum
+from typing import NamedTuple
+
+Datum = NamedTuple(
+    'Datum',
+    [
+        ('date', date),
+        ('lname', str),
+        ('value', int),
+    ]
+)
 
 
-Datum = namedtuple('Datum', 'date, lname, value')
-
-
-class SymptomStrength:
+class SymptomStrength(str, Enum):
 
     UNKNOWN = 'unknown'
     ERROR = 'error'

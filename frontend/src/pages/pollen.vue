@@ -16,7 +16,7 @@ export default {
   },
   watch: {
     model: function (newValue, oldValue) {
-      let url = `http://devbox:5000/recent?num_days=200&genus=${newValue}`
+      let url = `http://localhost:5000/recent?num_days=200&genus=${newValue}`
       this.$axios.get(url).then(response => {
         let values = response.data[newValue]
         let data = [values]
@@ -31,7 +31,7 @@ export default {
     Plotly.newPlot('Graph', data, layout)
   },
   created () {
-    let url = 'http://devbox:5000/recent?num_days=200&genus=Acer'
+    let url = 'http://localhost:5000/recent?num_days=200&genus=Acer'
     this.$axios.get(url).then(response => {
       let acer = response.data['Acer']
       let data = [acer]
