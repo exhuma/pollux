@@ -2,7 +2,7 @@ from datetime import date
 from pkg_resources import resource_filename
 import unittest
 
-from pollux import parse, Datum
+from pollux import parse_html, Datum
 
 
 class TestParser(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestParser(unittest.TestCase):
         fn = resource_filename('pollux', 'test/data/data1.html')
         with open(fn, encoding='latin1') as fptr:
             html = fptr.read()
-        result = parse(html)
+        result = parse_html(html)
         expected = {
             Datum(date(2014, 9, 21), 'Ambrosia', 0),
             Datum(date(2014, 9, 22), 'Ambrosia', 1),
@@ -254,7 +254,7 @@ class TestParser(unittest.TestCase):
         fn = resource_filename('pollux', 'test/data/data2.html')
         with open(fn, encoding='latin1') as fptr:
             html = fptr.read()
-        result = parse(html)
+        result = parse_html(html)
 
         expected = {
             Datum(date(2014, 4, 6), 'Ambrosia', 0),
