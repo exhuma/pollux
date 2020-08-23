@@ -53,17 +53,19 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view :proxy="proxy"/>
     </q-page-container>
 
   </q-layout>
 </template>
 
 <script>
+import { Proxy } from 'src/proxy.js'
 export default {
   data () {
     return {
-      leftDrawer: true
+      leftDrawer: true,
+      proxy: new Proxy('http://localhost:5000')
     }
   }
 }

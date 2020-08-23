@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <q-select v-model="model" :options="options" label="Standard" />
+    <q-select v-model="genus" :options="options" label="Genus" />
     <div id="Graph"></div>
   </q-page>
 </template>
@@ -10,7 +10,7 @@ import Plotly from 'plotly.js/dist/plotly'
 export default {
   data () {
     return {
-      model: null,
+      genus: null,
       options: ['Acer', 'Gramineae'],
       graphLayout: {
         barmode: 'stack',
@@ -19,14 +19,17 @@ export default {
     }
   },
   watch: {
-    model: function (newValue, oldValue) {
-      let url = `http://localhost:5000/recent?num_days=200&genus=${newValue}`
-      let that = this
-      this.$axios.get(url).then(response => {
-        let values = response.data[newValue]
-        let data = [values]
-        Plotly.react('Graph', data, that.graphLayout)
-      })
+    genus: function (newValue, oldValue) {
+      this.proxy.getRecent(newValue)
+        .then((data) => {
+          Plotly.react('Graph', [data], this.graphLayout)
+        })
+    }
+  },
+  props: {
+    proxy: {
+      type: Object,
+      required: true
     }
   },
   mounted () {
@@ -34,13 +37,14 @@ export default {
     Plotly.newPlot('Graph', data, this.graphLayout)
   },
   created () {
-    let url = 'http://localhost:5000/recent?num_days=200&genus=Acer'
-    let that = this
-    this.$axios.get(url).then(response => {
-      let acer = response.data['Acer']
-      let data = [acer]
-      Plotly.react('Graph', data, that.graphLayout)
-    })
+    this.proxy.getRecent('Acer')
+      .then((data) => {
+        Plotly.react('Graph', [data], this.graphLayout)
+      })
+    this.proxy.fetchGenera()
+      .then(data => {
+        this.options = data
+      })
   }
 }
 </script>
