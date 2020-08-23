@@ -56,3 +56,9 @@ def between(start: str, end: str) -> Response:
 def genera() -> Response:
     data = g.data_source.genera()
     return jsonify(data)  # type: ignore
+
+
+@MAIN.route("/heatmap/<genus>")
+def heatmap(genus: str) -> Response:
+    data = g.data_source.heatmap(genus)
+    return jsonify(data)

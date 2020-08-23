@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
+import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
-
 
 PlotlyDict = Dict[str, Dict[str, Any]]
 
@@ -43,3 +43,25 @@ class PandasDS(DataSource):
         now = datetime.now()
         start = now - timedelta(days=num_days)
         return self.between(start, now, genera=genera)
+
+    def heatmap(self, genus: str) -> PlotlyDict:
+        self.data_frame["year"] = self.data_frame.index.year
+        self.data_frame["date2"] = self.data_frame.index.strftime("%m-%d")
+        pivoted = pd.pivot_table(
+            self.data_frame,
+            values=genus,
+            index="year",
+            columns="date2",
+            aggfunc=np.sum,
+            fill_value=-1,
+        )
+        years = []
+        for index, row in pivoted.iterrows():
+            year_values = list(row)
+            years.append(year_values)
+
+        data = {
+            "z": years,
+            "type": "heatmap"
+        }
+        return data
