@@ -7,13 +7,14 @@
       use-input
       @filter="filterGenera"
       />
-    <div id="Timeline"></div>
+    <div id="Timeline" ref="timelineRef"></div>
     <div id="Heatmap"></div>
   </q-page>
 </template>
 
 <script>
 import Plotly from 'plotly.js/dist/plotly'
+import moment from 'moment'
 export default {
   data () {
     return {
@@ -72,6 +73,18 @@ export default {
     var data = []
     Plotly.newPlot('Timeline', data, this.timelineLayout)
     Plotly.newPlot('Heatmap', data, this.heatmapLayout)
+    let self = this
+    this.$refs.timelineRef.on('plotly_relayout', function (evt) {
+      let from = moment(evt['xaxis.range[0]'])
+      let to = moment(evt['xaxis.range[1]'])
+      if (from - to === 0) {
+        return
+      }
+      self.proxy.getBetween(self.genus, from, to)
+        .then((data) => {
+          Plotly.react('Timeline', [data], this.timelineLayout)
+        })
+    })
   },
   created () {
     this.updateGenus(this.genus)

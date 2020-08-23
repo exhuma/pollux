@@ -22,6 +22,19 @@ class Proxy {
       })
   }
 
+  getBetween (genus, from, to) {
+    let fromStr = from.format('YYYY-MM-DD')
+    let toStr = to.format('YYYY-MM-DD')
+    let url = `${this.url}/between/${fromStr}/${toStr}?genus=${genus}`
+    return fetch(url)
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        return data[genus]
+      })
+  }
+
   getHeatmap (genus) {
     let url = `${this.url}/heatmap/${genus}`
     return fetch(url)
