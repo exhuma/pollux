@@ -7,8 +7,8 @@
       use-input
       @filter="filterGenera"
       />
-    <div id="Heatmap"></div>
     <div id="Timeline"></div>
+    <div id="Heatmap"></div>
   </q-page>
 </template>
 
