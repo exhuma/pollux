@@ -1,6 +1,12 @@
 <template>
   <q-page padding>
-    <q-select v-model="genus" :options="options" label="Genus" />
+    <q-select
+      v-model="genus"
+      :options="options"
+      label="Genus"
+      use-input
+      @filter="filterGenera"
+      />
     <div id="Graph"></div>
   </q-page>
 </template>
@@ -11,7 +17,8 @@ export default {
   data () {
     return {
       genus: 'Gramineae',
-      options: ['Acer', 'Gramineae'],
+      allValues: [],
+      options: [],
       graphLayout: {
         barmode: 'stack',
         yaxis: { fixedrange: true },
@@ -20,6 +27,19 @@ export default {
     }
   },
   methods: {
+    filterGenera: function (value, update) {
+      if (value === '') {
+        update(() => {
+          this.options = this.allValues
+        })
+        return
+      }
+
+      update(() => {
+        const needle = value.toLowerCase()
+        this.options = this.allValues.filter(v => v.toLowerCase().indexOf(needle) > -1)
+      })
+    },
     updateGenus: function (genus) {
       this.proxy.getRecent(genus)
         .then((data) => {
@@ -47,7 +67,7 @@ export default {
     this.updateGenus(this.genus)
     this.proxy.fetchGenera()
       .then(data => {
-        this.options = data
+        this.allValues = data
       })
   }
 }
