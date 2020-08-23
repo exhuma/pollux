@@ -6,24 +6,9 @@
         <q-btn dense flat round icon="menu" @click="leftDrawer = !leftDrawer" />
 
         <q-toolbar-title>
-          Title
+          Pollen/Spores - Luxembourg
         </q-toolbar-title>
       </q-toolbar>
-
-      <q-tabs align="left">
-        <q-route-tab
-          icon="map"
-          to="/your/route"
-          replace
-          label="One Tab"
-        />
-        <q-route-tab
-          icon="assignment"
-          to="/some/other/route"
-          replace
-          label="Other Tab"
-        />
-      </q-tabs>
     </q-header>
 
     <q-drawer
