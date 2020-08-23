@@ -7,7 +7,8 @@
       use-input
       @filter="filterGenera"
       />
-    <div id="Graph"></div>
+    <div id="Heatmap"></div>
+    <div id="Timeline"></div>
   </q-page>
 </template>
 
@@ -19,9 +20,12 @@ export default {
       genus: 'Gramineae',
       allValues: [],
       options: [],
-      graphLayout: {
+      timelineLayout: {
         barmode: 'stack',
         yaxis: { fixedrange: true },
+        title: ''
+      },
+      heatmapLayout: {
         title: ''
       }
     }
@@ -43,8 +47,13 @@ export default {
     updateGenus: function (genus) {
       this.proxy.getRecent(genus)
         .then((data) => {
-          this.graphLayout.title = genus
-          Plotly.react('Graph', [data], this.graphLayout)
+          this.timelineLayout.title = genus
+          Plotly.react('Timeline', [data], this.timelineLayout)
+        })
+      this.proxy.getHeatmap(genus)
+        .then((data) => {
+          this.heatmapLayout.title = genus
+          Plotly.react('Heatmap', [data], this.heatmapLayout)
         })
     }
   },
@@ -61,7 +70,8 @@ export default {
   },
   mounted () {
     var data = []
-    Plotly.newPlot('Graph', data, this.graphLayout)
+    Plotly.newPlot('Timeline', data, this.timelineLayout)
+    Plotly.newPlot('Heatmap', data, this.heatmapLayout)
   },
   created () {
     this.updateGenus(this.genus)
