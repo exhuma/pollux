@@ -1,10 +1,16 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any, Dict, List
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 PlotlyDict = Dict[str, Dict[str, Any]]
+
+
+def parse_date(str_date: str) -> str:
+    month, day = str_date.split(";")
+    obj = date(2000, int(month), int(day))
+    return obj.strftime("%d. %B")
 
 
 class DataSource:
@@ -46,7 +52,7 @@ class PandasDS(DataSource):
 
     def heatmap(self, genus: str) -> PlotlyDict:
         self.data_frame["year"] = self.data_frame.index.year
-        self.data_frame["date2"] = self.data_frame.index.strftime("%m-%d")
+        self.data_frame["date2"] = self.data_frame.index.strftime("%m;%d")
         pivoted = pd.pivot_table(
             self.data_frame,
             values=genus,
@@ -55,13 +61,21 @@ class PandasDS(DataSource):
             aggfunc=np.sum,
             fill_value=-1,
         )
-        years = []
+
+        data = []
+        y = []
+        x = []
         for index, row in pivoted.iterrows():
             year_values = list(row)
-            years.append(year_values)
+            if not x:
+                x = [parse_date(cell) for cell in row.index]
+            y.append(str(index))
+            data.append(year_values)
 
         data = {
-            "z": years,
+            "z": data,
+            "y": y,
+            "x": x,
             "type": "heatmap"
         }
         return data
