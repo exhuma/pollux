@@ -64,7 +64,7 @@ import { Proxy } from 'src/proxy.js'
 export default {
   data () {
     return {
-      leftDrawer: true,
+      leftDrawer: false,
       proxy: new Proxy('http://localhost:5000')
     }
   }
