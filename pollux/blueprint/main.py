@@ -39,7 +39,6 @@ def index() -> Response:
 def recent() -> Response:
     num_days = int(request.args.get("num_days", 7))
     genera = request.args.getlist("genus")
-    print(genera)
     data = g.data_source.recent(num_days=num_days, genera=genera)
     return jsonify(data)  # type: ignore
 
