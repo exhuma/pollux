@@ -10,20 +10,27 @@ import Plotly from 'plotly.js/dist/plotly'
 export default {
   data () {
     return {
-      genus: null,
+      genus: 'Gramineae',
       options: ['Acer', 'Gramineae'],
       graphLayout: {
         barmode: 'stack',
-        yaxis: { fixedrange: true }
+        yaxis: { fixedrange: true },
+        title: ''
       }
+    }
+  },
+  methods: {
+    updateGenus: function (genus) {
+      this.proxy.getRecent(genus)
+        .then((data) => {
+          this.graphLayout.title = genus
+          Plotly.react('Graph', [data], this.graphLayout)
+        })
     }
   },
   watch: {
     genus: function (newValue, oldValue) {
-      this.proxy.getRecent(newValue)
-        .then((data) => {
-          Plotly.react('Graph', [data], this.graphLayout)
-        })
+      this.updateGenus(newValue)
     }
   },
   props: {
@@ -37,10 +44,7 @@ export default {
     Plotly.newPlot('Graph', data, this.graphLayout)
   },
   created () {
-    this.proxy.getRecent('Acer')
-      .then((data) => {
-        Plotly.react('Graph', [data], this.graphLayout)
-      })
+    this.updateGenus(this.genus)
     this.proxy.fetchGenera()
       .then(data => {
         this.options = data
