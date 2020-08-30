@@ -3,6 +3,7 @@
     <q-select
       v-model="genus"
       :options="options"
+      :option-label="(item) => $t(item)"
       label="Genus"
       use-input
       @filter="filterGenera"
@@ -18,7 +19,7 @@ import moment from 'moment'
 export default {
   data () {
     return {
-      genus: 'Gramineae',
+      genus: this.$t('Gramineae'),
       allValues: [],
       options: [],
       timelineData: [],
@@ -35,16 +36,22 @@ export default {
   },
   methods: {
     filterGenera: function (value, update) {
+      let self = this
       if (value === '') {
         update(() => {
-          this.options = this.allValues
+          self.options = self.allValues
         })
         return
       }
 
       update(() => {
         const needle = value.toLowerCase()
-        this.options = this.allValues.filter(v => v.toLowerCase().indexOf(needle) > -1)
+        self.options = self.allValues.filter(v => {
+          return (
+            v.toLowerCase().indexOf(needle) > -1 ||
+            self.$t(v).toLowerCase().indexOf(needle) > -1
+          )
+        })
       })
     },
     updateGenus: function (genus) {
