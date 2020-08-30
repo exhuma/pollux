@@ -54,6 +54,12 @@ class Proxy {
         return data
       })
   }
+
+  getSupportedLanguages () {
+    return new Promise(resolve => {
+      resolve(['en', 'de', 'lb', 'fr'])
+    })
+  }
 }
 
 export {

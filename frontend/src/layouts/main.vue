@@ -8,6 +8,18 @@
         <q-toolbar-title>
           Pollen/Spores - Luxembourg
         </q-toolbar-title>
+
+        <q-select
+          v-model="lang"
+          :options="langOptions"
+          label="Language"
+          dense
+          borderless
+          emit-value
+          map-options
+          options-dense
+          style="min-width: 150px"
+          />
       </q-toolbar>
     </q-header>
 
@@ -61,12 +73,45 @@
 
 <script>
 import { Proxy } from 'src/proxy.js'
+
+function getLanguage (proxy) {
+  return proxy.getSupportedLanguages()
+    .then(supportedLanguages => {
+      let browserSetting = navigator.languages || [navigator.language]
+      let bestMatch = ''
+      browserSetting.forEach(item => {
+        let langCode = item.split('-')[0]
+        if (supportedLanguages.indexOf(langCode) > -1 && bestMatch === '') {
+          bestMatch = langCode
+        }
+      })
+      return bestMatch
+    })
+}
+
 export default {
   data () {
     return {
       leftDrawer: false,
-      proxy: new Proxy('http://localhost:5000')
+      proxy: new Proxy('http://localhost:5000'),
+      lang: this.$i18n.locale,
+      langOptions: [
+        { value: 'en', label: 'English' },
+        { value: 'de', label: 'Deutsch' },
+        { value: 'fr', label: 'Français' },
+        { value: 'lb', label: 'Lëtzebuergesch' }
+      ]
     }
+  },
+  watch: {
+    lang (lang) {
+      this.$i18n.locale = lang
+    }
+  },
+  created () {
+    getLanguage(this.proxy).then(value => {
+      this.lang = value
+    })
   }
 }
 </script>
