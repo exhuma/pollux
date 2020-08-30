@@ -10,12 +10,15 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@intlify/vue-i18n-loader": "^1.0.0",
     "@quasar/extras": "^1.9.4",
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "plotly": "^1.0.6",
     "plotly.js": "^1.54.7",
-    "quasar": "^1.12.13"
+    "quasar": "^1.12.13",
+    "vue-i18n": "^8.21.0",
+    "yaml-loader": "^0.6.0"
   },
   "devDependencies": {
     "@quasar/app": "^2.0.6",
@@ -32,16 +35,14 @@
     "yarn": ">= 1.6.0"
   },
   "browserslist": [
-
-  "last 10 Chrome versions",
-  "last 10 Firefox versions",
-  "last 4 Edge versions",
-  "last 7 Safari versions",
-  "last 8 Android versions",
-  "last 8 ChromeAndroid versions",
-  "last 8 FirefoxAndroid versions",
-  "last 10 iOS versions",
-  "last 5 Opera versions"
-
+    "last 10 Chrome versions",
+    "last 10 Firefox versions",
+    "last 4 Edge versions",
+    "last 7 Safari versions",
+    "last 8 Android versions",
+    "last 8 ChromeAndroid versions",
+    "last 8 FirefoxAndroid versions",
+    "last 10 iOS versions",
+    "last 5 Opera versions"
   ]
 }

@@ -65,7 +65,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view :proxy="proxy"/>
+      <router-view :proxy="proxy" :locale="lang"/>
     </q-page-container>
 
   </q-layout>
