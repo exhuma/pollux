@@ -19,7 +19,7 @@ import moment from 'moment'
 export default {
   data () {
     return {
-      genus: this.$t('Gramineae'),
+      genus: 'Gramineae',
       allValues: [],
       options: [],
       timelineData: [],
