@@ -1,7 +1,7 @@
 class Proxy {
-  constructor (url) {
+  constructor (url, token) {
     this.url = url
-    console.log(url)
+    this.token = token
   }
 
   fetchGenera () {
@@ -59,6 +59,38 @@ class Proxy {
     return new Promise(resolve => {
       resolve(['en', 'de', 'lb', 'fr'])
     })
+  }
+
+  login (username, password) {
+    let url = `${this.url}/auth`
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username: username, password: password })
+    })
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        return data.token
+      })
+  }
+
+  upload (file) {
+    let url = `${this.url}/upload`
+    return fetch(url, {
+      headers: {
+        'Authorization': `JWT ${this.token}`
+      }
+    })
+      .then(response => {
+        if (response.status === 401) {
+          throw new Error('Authorization failed')
+        }
+        return response.json()
+      })
   }
 }
 

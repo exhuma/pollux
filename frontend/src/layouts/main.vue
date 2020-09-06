@@ -20,6 +20,8 @@
           options-dense
           style="min-width: 150px"
           />
+        <q-btn v-if="token === ''" rounded flat @click="startLogin" icon="login" />
+        <q-btn v-if="token !== ''" rounded flat @click="logout" icon="account_circle" />
       </q-toolbar>
     </q-header>
 
@@ -65,7 +67,43 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view :proxy="proxy" :locale="lang"/>
+
+      <q-dialog v-model="loginDialog" persistent>
+        <q-card style="min-width: 350px">
+          <q-card-section class="row items-center q-pb-none">
+            <div class="text-h6">Login</div>
+          </q-card-section>
+          <q-card-section class="q-pt-none">
+            <q-input label="Username" v-model="username" autofocus />
+          </q-card-section>
+          <q-card-section class="q-pt-none">
+            <q-input
+              label="Password"
+              v-model="password"
+              :type="isPwd ? 'password' : 'text'"
+              @keyup.enter="loginDialog = false">
+              <template v-slot:append>
+                <q-icon
+                  :name="isPwd ? 'visibility_off' : 'visibility'"
+                  class="cursor-pointer"
+                  @click="isPwd = !isPwd"
+                  />
+              </template>
+            </q-input>
+          </q-card-section>
+
+          <q-card-actions align="right" class="text-primary">
+            <q-btn flat label="Cancel" @click="cancelLogin" />
+            <q-btn flat label="Login" @click="acceptLogin" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <router-view
+        @tokenChanged="onTokenChanged"
+        :proxy="proxy"
+        :locale="lang"
+        />
     </q-page-container>
 
   </q-layout>
@@ -93,8 +131,13 @@ export default {
   data () {
     return {
       leftDrawer: false,
-      proxy: new Proxy('http://localhost:5000'),
+      token: '',
+      proxy: null,
       lang: this.$i18n.locale,
+      loginDialog: false,
+      username: '',
+      password: '',
+      isPwd: true,
       langOptions: [
         { value: 'en', label: 'English' },
         { value: 'de', label: 'Deutsch' },
@@ -103,12 +146,50 @@ export default {
       ]
     }
   },
+  methods: {
+    startLogin () {
+      this.loginDialog = true
+    },
+    logout () {
+      this.login = ''
+      this.password = ''
+      this.onTokenChanged('')
+    },
+    acceptLogin () {
+      if (this.username && this.password) {
+        this.proxy.login(this.username, this.password)
+          .then(token => {
+            this.onTokenChanged(token)
+          })
+      }
+      this.password = ''
+      this.loginDialog = false
+    },
+    cancelLogin () {
+      this.login = ''
+      this.password = ''
+      this.loginDialog = false
+    },
+    onTokenChanged (token) {
+      if (!token) {
+        localStorage.removeItem('token')
+        this.token = ''
+        this.proxy.token = ''
+        return
+      }
+      localStorage.setItem('token', token)
+      this.token = token
+      this.proxy.token = token
+    }
+  },
   watch: {
     lang (lang) {
       this.$i18n.locale = lang
     }
   },
   created () {
+    this.token = localStorage.getItem('token') || ''
+    this.proxy = new Proxy('http://localhost:5000', this.token)
     getLanguage(this.proxy).then(value => {
       this.lang = value
     })
