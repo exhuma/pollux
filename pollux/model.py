@@ -1,14 +1,15 @@
-from collections import namedtuple
+from datetime import date
+from enum import Enum
+from typing import NamedTuple
+
+Datum = NamedTuple("Datum", [("date", date), ("lname", str), ("value", int),])
 
 
-Datum = namedtuple('Datum', 'date, lname, value')
+class SymptomStrength(str, Enum):
 
-
-class SymptomStrength:
-
-    UNKNOWN = 'unknown'
-    ERROR = 'error'
-    NONE = 'none'
-    LOW = 'low'
-    MEDIUM = 'medium'
-    HIGH = 'high'
+    UNKNOWN = "unknown"
+    ERROR = "error"
+    NONE = "none"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"

@@ -7,6 +7,7 @@ setup(
     install_requires=[
         'beautifulsoup4',
         'config_resolver',
+        'flask',
         'requests',
     ],
     include_package_data=True,
