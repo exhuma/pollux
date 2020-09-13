@@ -26,6 +26,18 @@ class Proxy {
       })
   }
 
+  getRecentRaw () {
+    let url = `${this.url}/recent?num_days=5`
+    return fetch(url, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+      .then(response => {
+        return response.json()
+      })
+  }
+
   getBetween (genus, from, to) {
     let fromStr = from.format('YYYY-MM-DD')
     let toStr = to.format('YYYY-MM-DD')
