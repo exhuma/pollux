@@ -8,6 +8,11 @@
       use-input
       @filter="filterGenera"
       />
+    <DataTable
+      :genera="[genus]"
+      :data="rawData"
+      :hide_bottom="true"
+      ></DataTable>
     <div id="Timeline" ref="timelineRef"></div>
     <div id="Heatmap"></div>
   </q-page>
@@ -16,9 +21,11 @@
 <script>
 import Plotly from 'plotly.js/dist/plotly'
 import moment from 'moment'
+import DataTable from 'src/components/DataTable.vue'
 export default {
   data () {
     return {
+      rawData: [],
       genus: 'Gramineae',
       allValues: [],
       options: [],
@@ -89,6 +96,10 @@ export default {
           this.heatmapLayout.title = this.$t(genus)
           Plotly.react('Heatmap', [this.heatmapData], this.heatmapLayout)
         })
+      this.proxy.getRecentRaw()
+        .then(responseData => {
+          this.rawData = responseData
+        })
     }
   },
   watch: {
@@ -140,6 +151,9 @@ export default {
       .then(data => {
         this.allValues = data
       })
+  },
+  components: {
+    DataTable
   }
 }
 </script>

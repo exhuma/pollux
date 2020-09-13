@@ -2,6 +2,7 @@ class Proxy {
   constructor (url, token) {
     this.url = url
     this.token = token
+    this.upload_url = url + '/upload'
   }
 
   fetchGenera () {
@@ -13,7 +14,11 @@ class Proxy {
 
   getRecent (genus) {
     let url = `${this.url}/recent?num_days=365&genus=${genus}`
-    return fetch(url)
+    return fetch(url, {
+      headers: {
+        'Accept': 'application/prs.plotlydict+json'
+      }
+    })
       .then(response => {
         return response.json()
       })
@@ -22,11 +27,27 @@ class Proxy {
       })
   }
 
+  getRecentRaw () {
+    let url = `${this.url}/recent?num_days=5`
+    return fetch(url, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+      .then(response => {
+        return response.json()
+      })
+  }
+
   getBetween (genus, from, to) {
     let fromStr = from.format('YYYY-MM-DD')
     let toStr = to.format('YYYY-MM-DD')
     let url = `${this.url}/between/${fromStr}/${toStr}?genus=${genus}`
-    return fetch(url)
+    return fetch(url, {
+      headers: {
+        'Accept': 'application/prs.plotlydict+json'
+      }
+    })
       .then(response => {
         return response.json()
       })
