@@ -1,6 +1,8 @@
 from datetime import datetime
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Tuple, Union
+from os import makedirs
+from os.path import exists, join, splitext
+from typing import Any, Dict, Optional, Tuple, Union, List
 
 import jwt
 import pollux.auth as pauth
@@ -8,6 +10,8 @@ from flask import Blueprint, current_app, g
 from flask import jsonify as jsonify_orig
 from flask import request
 from flask.wrappers import Response
+from werkzeug.utils import secure_filename
+
 from pollux.datasource import DataSource
 
 MAIN = Blueprint("", __name__)
@@ -29,6 +33,10 @@ def jsonify(data: Dict[str, Any]) -> Response:
     output = jsonify_orig(merged_data)
     return output  # type: ignore
 
+
+def allowed_file(filename: str) -> bool:
+    _, ext = splitext(filename)
+    return ext.lower() in {".csv"}
 
 
 @MAIN.before_app_request
@@ -110,10 +118,23 @@ def heatmap(genus: str) -> Response:
     return jsonify(data)
 
 
-@MAIN.route("/upload")
+@MAIN.route("/upload", methods=["POST"])
 def upload() -> TFlaskResponse:
     if not g.auth_info:
         return jsonify({"message": "Authorization required"}), HTTPStatus.UNAUTHORIZED
+    dest = current_app.config["UPLOAD_FOLDER"]
+    if not exists(dest):
+        makedirs(dest)
+    if len(request.files) != 1:
+        return jsonify({"message": "Expecting exactly one file!"}), 400  # type: ignore
+
+    filename, data = list(request.files.items())[0]
+
+    if not allowed_file(filename):
+        return jsonify({"message": "Unsupported file-extension"}), 400  # type: ignore
+    filename = join(dest, secure_filename(filename))  # type: ignore
+    data.save(filename)
+
     return jsonify({"status": "OK"})
 
 
