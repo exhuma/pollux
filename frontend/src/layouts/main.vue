@@ -81,7 +81,7 @@
               label="Password"
               v-model="password"
               :type="isPwd ? 'password' : 'text'"
-              @keyup.enter="loginDialog = false">
+              @keyup.enter="acceptLogin">
               <template v-slot:append>
                 <q-icon
                   :name="isPwd ? 'visibility_off' : 'visibility'"
@@ -174,12 +174,12 @@ export default {
       if (!token) {
         localStorage.removeItem('token')
         this.token = ''
-        this.proxy.token = ''
+        this.proxy.setToken('')
         return
       }
       localStorage.setItem('token', token)
       this.token = token
-      this.proxy.token = token
+      this.proxy.setToken(token)
     }
   },
   watch: {

@@ -78,6 +78,13 @@ class Proxy {
       })
   }
 
+  setToken (token) {
+    if (token === undefined) {
+      debugger
+    }
+    this.token = token
+  }
+
   upload (file) {
     let url = `${this.url}/upload`
     return fetch(url, {
