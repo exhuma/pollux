@@ -9,10 +9,12 @@ import pollux.auth as pauth
 from flask import Blueprint, current_app, g
 from flask import jsonify as jsonify_orig
 from flask import request
-from flask.wrappers import Response
+from flask.wrappers import Response, Request
 from werkzeug.utils import secure_filename
+from pandas import DataFrame
 
 from pollux.datasource import DataSource
+from pollux.cneg import make_plotly_dict, make_plain_dict
 
 MAIN = Blueprint("", __name__)
 
@@ -20,6 +22,9 @@ TFlaskResponse = Union[
     Response,
     Tuple[Response, HTTPStatus]
 ]
+
+#: The media-type used for plotly output
+PLOTLY_MT = "application/prs.plotlydict+json"
 
 
 def jsonify(data: Dict[str, Any]) -> Response:
@@ -32,6 +37,19 @@ def jsonify(data: Dict[str, Any]) -> Response:
         merged_data = data
     output = jsonify_orig(merged_data)
     return output  # type: ignore
+
+
+def make_response(df: DataFrame, genera: List[str], request: Request) -> Response:
+    accept = request.accept_mimetypes.best_match([PLOTLY_MT])
+    if accept == PLOTLY_MT:
+        data = make_plotly_dict(df, genera)
+        content_type = PLOTLY_MT
+    else:
+        data = make_plain_dict(df)
+        content_type = "application/json"
+    response = jsonify(data)
+    response.content_type = content_type
+    return response
 
 
 def allowed_file(filename: str) -> bool:
@@ -93,8 +111,8 @@ def index() -> Response:
 def recent() -> Response:
     num_days = int(request.args.get("num_days", 7))
     genera = request.args.getlist("genus")
-    data = g.data_source.recent(num_days=num_days, genera=genera)
-    return jsonify(data)
+    df = g.data_source.recent(num_days=num_days, genera=genera)
+    return make_response(df, genera, request)
 
 
 @MAIN.route("/between/<start>/<end>")
@@ -102,8 +120,8 @@ def between(start: str, end: str) -> Response:
     startDate = datetime.strptime(start, "%Y-%m-%d")
     endDate = datetime.strptime(end, "%Y-%m-%d")
     genera = request.args.getlist("genus")
-    data = g.data_source.between(startDate, endDate, genera=genera)
-    return jsonify(data)
+    df = g.data_source.between(startDate, endDate, genera=genera)
+    return make_response(df, genera, request)
 
 
 @MAIN.route("/genera")

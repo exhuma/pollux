@@ -1,10 +1,10 @@
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
-PlotlyDict = Dict[str, Dict[str, Any]]
+from pollux.cneg import PlotlyDict
 
 
 def parse_date(str_date: str) -> str:
@@ -28,24 +28,15 @@ class PandasDS(DataSource):
     def genera(self) -> List[str]:
         return sorted(self.data_frame.columns)
 
-    def between(self, start: datetime, end: datetime, genera: str = "") -> PlotlyDict:
+    def between(self, start: datetime, end: datetime, genera: Optional[List[str]] = None) -> pd.DataFrame:
+        genera = genera or []
         subset = self.data_frame.loc[
             (self.data_frame.index >= start) & (self.data_frame.index <= end)
         ]
-        genera = genera or subset
-        output = {}
-        for genus in genera:
-            x = [date.isoformat() for date in subset[genus].index]
-            y = list(subset[genus])
-            output[genus] = {
-                "x": x,
-                "y": y,
-                "name": genus,
-                "type": "bar",
-            }
-        return output
+        return subset
 
-    def recent(self, num_days: int = 7, genera: str = "") -> PlotlyDict:
+    def recent(self, num_days: int = 7, genera: Optional[List[str]] = None) -> pd.DataFrame:
+        genera = genera or []
         now = datetime.now()
         start = now - timedelta(days=num_days)
         return self.between(start, now, genera=genera)

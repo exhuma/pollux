@@ -13,7 +13,11 @@ class Proxy {
 
   getRecent (genus) {
     let url = `${this.url}/recent?num_days=365&genus=${genus}`
-    return fetch(url)
+    return fetch(url, {
+      headers: {
+        'Accept': 'application/prs.plotlydict+json'
+      }
+    })
       .then(response => {
         return response.json()
       })
@@ -26,7 +30,11 @@ class Proxy {
     let fromStr = from.format('YYYY-MM-DD')
     let toStr = to.format('YYYY-MM-DD')
     let url = `${this.url}/between/${fromStr}/${toStr}?genus=${genus}`
-    return fetch(url)
+    return fetch(url, {
+      headers: {
+        'Accept': 'application/prs.plotlydict+json'
+      }
+    })
       .then(response => {
         return response.json()
       })
