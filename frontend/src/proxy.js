@@ -2,6 +2,7 @@ class Proxy {
   constructor (url, token) {
     this.url = url
     this.token = token
+    this.upload_url = url + '/upload'
   }
 
   fetchGenera () {

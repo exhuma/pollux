@@ -63,6 +63,16 @@
             <q-item-label caption>Information about spores &amp; poolen</q-item-label>
           </q-item-section>
         </q-item>
+
+        <q-item to="/data" exact>
+          <q-item-section avatar>
+            <q-icon name="archive" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Data Management</q-item-label>
+            <q-item-label caption>Add new data to the backend</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
