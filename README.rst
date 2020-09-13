@@ -4,6 +4,38 @@ Pollen Alert Luxembourg
 This package contains code for pollen information in Luxembourg via
 http://www.pollen.lu
 
+
+Backend Configuration
+---------------------
+
+A sample config file can be found in ``pollux/default_settings.py``, copy it
+and modify the settings as needed. Next, point the environment variable
+``POLLUX_SETTINGS`` to that file. Example::
+
+    cp pollux/default_settings.py mysettings.py
+    POLLUX_SETTINGS="$(pwd)/mysettings.py" ... flask run
+
+
+Authentication
+--------------
+
+By default usernames are taken from ``users.json`` in the current working
+folder. The file has the following structure::
+
+    {
+      "john.doe@example.com": {
+        "password": "<password-hash>",
+        "permissions": [
+          "upload_data"
+        ]
+      }
+    }
+
+To calculate a password hash, use::
+
+    FLASK_APP="pollux.api:make_app()" ./env/bin/flask hashpassword
+
+
 Fetching Data
 -------------
 

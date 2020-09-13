@@ -5,9 +5,11 @@ setup(
     version=open('pollux/version.txt').read().strip(),
     packages=find_packages(),
     install_requires=[
+        'bcrypt',
         'beautifulsoup4',
         'config_resolver',
         'flask',
+        'pyjwt',
         'requests',
     ],
     include_package_data=True,

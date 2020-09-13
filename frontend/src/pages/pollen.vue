@@ -35,6 +35,28 @@ export default {
     }
   },
   methods: {
+    login: function () {
+      this.proxy.login('jdoe', 'jdoe@example.com') // TODO
+        .then(token => {
+          this.$emit('tokenChanged', token)
+        })
+    },
+    upload: function () {
+      this.proxy.upload() // TODO add file
+        .then(data => {
+          if (data.refreshed_token) {
+            this.$emit('tokenChanged', data.refreshed_token)
+          }
+        })
+        .catch(e => {
+          if (e.message === 'Authorization failed') {
+            console.log(e.message)
+            this.$emit('tokenChanged', '')
+          } else {
+            throw e
+          }
+        })
+    },
     filterGenera: function (value, update) {
       let self = this
       if (value === '') {
