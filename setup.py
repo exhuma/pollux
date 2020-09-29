@@ -9,6 +9,7 @@ setup(
         'beautifulsoup4',
         'config_resolver',
         'flask',
+        'pandas',
         'pyjwt',
         'requests',
     ],
