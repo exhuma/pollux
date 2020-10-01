@@ -1,10 +1,14 @@
-from datetime import date
-from pkg_resources import resource_filename
-from unittest.mock import MagicMock, call
 import unittest
+from datetime import date
+from os.path import dirname, join
+from unittest.mock import MagicMock, call
+
+from pkg_resources import resource_filename
 
 from pollux import warnings
 from pollux.model import Datum, SymptomStrength
+
+HERE = dirname(__file__)
 
 
 class TestWarnings(unittest.TestCase):
@@ -63,7 +67,8 @@ class TestMain(unittest.TestCase):
     def test_execute(self):
         from pollux import Probe
 
-        fn = resource_filename("pollux", "test/data/data2.html")
+        fn = join(HERE, "data", "data2.html")
+
         with open(fn, encoding="latin1") as fptr:
             html = fptr.read()
 

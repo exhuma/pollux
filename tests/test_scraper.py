@@ -1,8 +1,12 @@
-from datetime import date
-from pkg_resources import resource_filename
 import unittest
+from datetime import date
+from os.path import dirname, join
 
-from pollux import parse_html, Datum
+from pkg_resources import resource_filename
+
+from pollux import Datum, parse_html
+
+HERE = dirname(__file__)
 
 
 class TestParser(unittest.TestCase):
@@ -10,7 +14,7 @@ class TestParser(unittest.TestCase):
         self.maxDiff = None
 
     def test_parsing(self):
-        fn = resource_filename("pollux", "test/data/data1.html")
+        fn = join(HERE, "data", "data1.html")
         with open(fn, encoding="latin1") as fptr:
             html = fptr.read()
         result = parse_html(html)
@@ -250,7 +254,7 @@ class TestParser(unittest.TestCase):
         self.assertCountEqual(result, expected)
 
     def test_parsing_2(self):
-        fn = resource_filename("pollux", "test/data/data2.html")
+        fn = join(HERE, "data", "data2.html")
         with open(fn, encoding="latin1") as fptr:
             html = fptr.read()
         result = parse_html(html)
