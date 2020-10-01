@@ -3,20 +3,24 @@ name = "pollux"
 version = "0.1.0"
 description = "Pollen alert service for Luxembourg"
 authors = ["Michel Albert <michel@albert.lu>"]
-license = "MIT"
+license = "BSD"
+# TODO url = "https://github.com/exhuma"
 
 [tool.poetry.dependencies]
 python = ">=3.6.1"
 pandas = "^1.0.3"
-seaborn = "^0.10.0"
-jupyter = "^1.0.0"
-statsmodels = "^0.11.1"
+bcrypt = "^3.2.0"
+beautifulsoup4 = "^4.9.2"
+config_resolver = "^5.0.2"
+flask = "^1.1.2"
+pyjwt = "^1.7.1"
+requests = "^2.24.0"
+importlib_metadata = {version = "^2.0.0", python = "<3.8"}
+
+[tool.poetry.scripts]
+fetch_pollen_csv = "pollux.cli:fetch_csv"
 
 [tool.poetry.dev-dependencies]
-
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
 
 [tool.pylint.messages_control]
 disable = [
@@ -34,3 +38,8 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 88
+
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
