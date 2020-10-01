@@ -1,3 +1,6 @@
+"""
+Command-line tools for pollux
+"""
 import csv
 import logging
 from argparse import ArgumentParser, Namespace
@@ -10,6 +13,9 @@ LOG = logging.getLogger(__name__)
 
 
 def parse_args() -> Namespace:
+    """
+    Parse comamnd-line arguments
+    """
     parser = ArgumentParser()
     parser.add_argument("start_year", type=int)
     parser.add_argument("end_year", type=int)
@@ -19,6 +25,9 @@ def parse_args() -> Namespace:
 
 
 def fetch_csv() -> None:
+    """
+    Scrape the pollen.lu site for data and store it as CSV
+    """
     args = parse_args()
     if args.verbose:
         logging.basicConfig(level=logging.INFO)
