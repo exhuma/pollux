@@ -7,9 +7,7 @@ from typing import Any, Dict, Iterable, Set
 from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup  # type: ignore
-
-from .data import THRESHOLDS
-from .model import Datum, SymptomStrength
+from .model import Datum
 
 LOG = logging.getLogger(__name__)
 
@@ -39,67 +37,3 @@ def parse_html(data: str) -> Set[Datum]:
             output.add(Datum(date, lname, value))
     LOG.debug("Retrieved %d data", len(output))
     return output
-
-
-def warnings(data: Iterable[Datum], date: makedate) -> Dict[str, SymptomStrength]:
-    """
-    Returns warning classifications for a given date.
-    """
-    output = {}
-    for row in data:
-        if row.date != date:
-            continue
-
-        key = row.lname.lower()
-        threshold = THRESHOLDS.get(key)
-        if threshold:
-            if row.value >= threshold.medium:
-                output[key] = SymptomStrength.HIGH
-            elif row.value >= threshold.light:
-                output[key] = SymptomStrength.MEDIUM
-            elif row.value > 0:
-                output[key] = SymptomStrength.LOW
-            elif row.value == 0:
-                LOG.debug("No warning needed for %r", row)
-            else:
-                # value < 0
-                LOG.warning("Illegal value: %r", row)
-                output[key] = SymptomStrength.ERROR
-        else:
-            LOG.debug("Key for row %r not found in thresholds!", row)
-            output[key] = SymptomStrength.UNKNOWN
-
-    LOG.debug("Determined %d warnings.", len(output))
-    return output
-
-
-@lru_cache(maxsize=20)
-def fetch_week(year: int, week: int, httplib: Any) -> Set[Datum]:
-    """
-    Fetches values for one specific week.
-    """
-    LOG.debug("Fetching data for year %r, week %r from the web", year, week)
-    url_params = [
-        ("qsPage", "data"),
-        ("year", year),
-        ("week", week),
-    ]
-    query = urlencode(url_params)
-    url = "http://www.pollen.lu/index.php?" + query
-    response = httplib.get(url)
-    data = parse_html(response.text)
-    return data
-
-
-class Probe:
-    def __init__(self, httplib: Any, emitlib: Any) -> None:
-        self.httplib = httplib
-        self.emitlib = emitlib
-
-    def execute(self, date: makedate) -> None:
-        LOG.debug("Executing probe for %s", date)
-        data = fetch_week(date.strftime("%Y"), date.strftime("%U"), self.httplib)
-
-        filtered = {datum for datum in data if datum.date == date}
-
-        self.emitlib.disseminate(date, filtered)

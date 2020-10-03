@@ -25,7 +25,4 @@ def make_app() -> Flask:
         hashed_pw = hash_pw(password)
         click.echo("Password Hash: %s" % hashed_pw)
 
-
-    return app
-
     return app

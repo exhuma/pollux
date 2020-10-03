@@ -140,6 +140,8 @@ def heatmap(genus: str) -> Response:
 def upload() -> TFlaskResponse:
     if not g.auth_info:
         return jsonify({"message": "Authorization required"}), HTTPStatus.UNAUTHORIZED
+    if not auth.Permission.UPLOAD_DATA in g.auth_info["permissions"]:
+        return jsonify({"message": "Access denied"}), HTTPStatus.FORBIDDEN
     dest = current_app.config["UPLOAD_FOLDER"]
     if not exists(dest):
         makedirs(dest)

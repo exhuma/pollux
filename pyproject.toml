@@ -23,6 +23,8 @@ fetch_pollen_csv = "pollux.cli:fetch_csv"
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.0"
 pytest-cov = "^2.10.1"
+pylint = "^2.6.0"
+mypy = "^0.782"
 
 [tool.pylint.messages_control]
 disable = [
