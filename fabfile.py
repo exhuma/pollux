@@ -14,5 +14,14 @@ def develop(context):
 def fetch_data(context):
     today = datetime.now().date().year
     context.run(
-        f"poetry run fetch_pollen_csv 1996 {today} data.csv", replace_env=False
+        f"./env/bin/fetch_pollen_csv 1996 {today} data.csv", replace_env=False
+    )
+
+
+@task
+def run_web(context):
+    context.run(
+        "./env/bin/flask run --reload",
+        env={"FLASK_APP": "pollux.api:make_app"},
+        replace_env=False,
     )
