@@ -4,7 +4,8 @@ from datetime import datetime
 
 @task
 def develop(context):
-    context.run("poetry install")
+    context.run("[ -d env ] || python3 -m venv env", replace_env=False)
+    context.run("./env/bin/pip install -e .[dev]", replace_env=False)
 
 
 @task
