@@ -18,15 +18,15 @@ import pygrib
 from argparse import ArgumentParser
 from collections import namedtuple
 
-Measurement = namedtuple('Measurement', 'name date value')
+Measurement = namedtuple("Measurement", "name date value")
 
 LOG = logging.getLogger(__name__)
 
 
 def inspect(grib):
-    '''
+    """
     Print out the available variable names and the used unit.
-    '''
+    """
     names = {}
     for msg in grib:
         units = names.setdefault(msg.parameterName, set())
@@ -37,13 +37,13 @@ def inspect(grib):
 
 
 def tablify(grib, names):
-    '''
+    """
     Return a table-like structure using timestamp as index (first column) and
     the variable name from *names* as subsequent columns.
-    '''
+    """
     cols = {}
     for var in names:
-        LOG.debug('Processing variable %r', var)
+        LOG.debug("Processing variable %r", var)
         iterator = iter(grib.select(name=var))
         for row in iterator:
             msr = Measurement(var, row.analDate, row.average)
@@ -59,7 +59,7 @@ def tablify(grib, names):
 
 
 def list_names(filename):
-    print('Listing names in %r...' % filename)
+    print("Listing names in %r..." % filename)
     pygrib.tolerate_badgrib_on()
     grbs = pygrib.open(filename)
     inspect(grbs)
@@ -68,11 +68,12 @@ def list_names(filename):
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('filename')
-    parser.add_argument('outfile')
-    parser.add_argument('-l', '--list-names',
-                        default=False, action='store_true')
-    parser.add_argument('-n', '--names')
+    parser.add_argument("filename")
+    parser.add_argument("outfile")
+    parser.add_argument(
+        "-l", "--list-names", default=False, action="store_true"
+    )
+    parser.add_argument("-n", "--names")
     return parser.parse_args()
 
 
@@ -87,7 +88,8 @@ def convert(filename, cols):
 
 def to_csv(filename, header, rows):
     import csv
-    with open(filename, 'w') as fp:
+
+    with open(filename, "w") as fp:
         writer = csv.writer(fp)
         writer.writerow(header)
         writer.writerows(rows)
@@ -98,11 +100,11 @@ def main():
     if args.list_names:
         list_names(args.filename)
     else:
-        names = [name.strip() for name in args.names.split(',')]
+        names = [name.strip() for name in args.names.split(",")]
         rows = convert(args.filename, names)
         to_csv(args.outfile, names, rows)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     main()

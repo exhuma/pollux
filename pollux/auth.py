@@ -35,6 +35,7 @@ def auth(username: str, password: str, authfile: str) -> Set[Permission]:
 
     return set()
 
+
 def hash_pw(plain: str) -> str:
     hashed = bcrypt.hashpw(plain.encode("utf8"), bcrypt.gensalt())
     return hashed.hex()
@@ -42,7 +43,9 @@ def hash_pw(plain: str) -> str:
 
 def encode_jwt(jwt_body: Dict[str, Any], secret: str) -> str:
     expires_at = datetime.utcnow() + timedelta(days=3)
-    token = jwt.encode({**jwt_body, "exp": expires_at}, secret, algorithm="HS256")
+    token = jwt.encode(
+        {**jwt_body, "exp": expires_at}, secret, algorithm="HS256"
+    )
     return token.decode("ascii")
 
 

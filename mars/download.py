@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-'''
+"""
 Fetches a data-set for Luxembourg
-'''
+"""
 from argparse import ArgumentParser
 from datetime import datetime, timedelta
 from os.path import exists
@@ -14,14 +14,14 @@ LOG = logging.getLogger(__name__)
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('year', type=int)
-    parser.add_argument('filename')
+    parser.add_argument("year", type=int)
+    parser.add_argument("filename")
     return parser.parse_args()
 
 
 def fetch(year, filename):
     if exists(filename):
-        LOG.debug('Skipping existing file %r', filename)
+        LOG.debug("Skipping existing file %r", filename)
         return
 
     current = datetime(year, 1, 1)
@@ -29,7 +29,7 @@ def fetch(year, filename):
     step = timedelta(days=1)
     alldates = []
     while current <= end:
-        alldates.append(current.strftime('%Y%d%m'))
+        alldates.append(current.strftime("%Y%d%m"))
         current += step
 
     overrides = {
@@ -56,7 +56,7 @@ def fetch(year, filename):
 
     server = ECMWFDataServer()
     server.retrieve(args)
-    LOG.info('Data written to %r', args.get('target', 'output'))
+    LOG.info("Data written to %r", args.get("target", "output"))
 
 
 def main():
@@ -64,6 +64,6 @@ def main():
     fetch(args.year, filename=args.filename)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     main()

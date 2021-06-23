@@ -28,14 +28,18 @@ class PandasDS(DataSource):
     def genera(self) -> List[str]:
         return sorted(self.data_frame.columns)
 
-    def between(self, start: datetime, end: datetime, genera: Optional[List[str]] = None) -> pd.DataFrame:
+    def between(
+        self, start: datetime, end: datetime, genera: Optional[List[str]] = None
+    ) -> pd.DataFrame:
         genera = genera or []
         subset = self.data_frame.loc[
             (self.data_frame.index >= start) & (self.data_frame.index <= end)
         ]
         return subset
 
-    def recent(self, num_days: int = 7, genera: Optional[List[str]] = None) -> pd.DataFrame:
+    def recent(
+        self, num_days: int = 7, genera: Optional[List[str]] = None
+    ) -> pd.DataFrame:
         genera = genera or []
         now = datetime.now()
         start = now - timedelta(days=num_days)
@@ -63,10 +67,5 @@ class PandasDS(DataSource):
             y.append(str(index))
             data.append(year_values)
 
-        data = {
-            "z": data,
-            "y": y,
-            "x": x,
-            "type": "heatmap"
-        }
+        data = {"z": data, "y": y, "x": x, "type": "heatmap"}
         return data

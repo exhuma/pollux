@@ -5,7 +5,7 @@ setup(
     name="pollux",
     version="0.1.0",
     description="Pollen alert service for Luxembourg",
-    url='https://github.com/exhuma/pollux',
+    url="https://github.com/exhuma/pollux",
     long_description=open("README.rst").read(),
     author="Michel Albert",
     author_email="michel@albert.lu",

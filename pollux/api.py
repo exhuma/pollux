@@ -16,7 +16,7 @@ def make_app() -> Flask:
 
     @app.cli.command()
     @click.option(
-        '--password', prompt=True, hide_input=True, confirmation_prompt=True
+        "--password", prompt=True, hide_input=True, confirmation_prompt=True
     )
     def hashpassword(password: str) -> None:
         """

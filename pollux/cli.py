@@ -37,7 +37,9 @@ def fetch_csv() -> None:
 
     start = date(args.start_year, 1, 1)
     end = date(args.end_year, 12, 31)
-    rows = sorted(fetch_from(start, end, cache_folder="cache"), key=lambda x: x.date)
+    rows = sorted(
+        fetch_from(start, end, cache_folder="cache"), key=lambda x: x.date
+    )
 
     names = sorted({row.lname for row in rows})
     collection = {}  # type: Dict[date, Dict[str, Any]]

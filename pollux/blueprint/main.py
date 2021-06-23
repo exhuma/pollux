@@ -18,10 +18,7 @@ from pollux.cneg import make_plotly_dict, make_plain_dict
 
 MAIN = Blueprint("", __name__)
 
-TFlaskResponse = Union[
-    Response,
-    Tuple[Response, HTTPStatus]
-]
+TFlaskResponse = Union[Response, Tuple[Response, HTTPStatus]]
 
 #: The media-type used for plotly output
 PLOTLY_MT = "application/prs.plotlydict+json"
@@ -31,7 +28,9 @@ def jsonify(data: Dict[str, Any]) -> Response:
     auth_header = request.headers.get("Authorization", "")
     _, _, token = auth_header.partition(" ")
     if token:
-        refreshed_token = pauth.refresh_token(token, current_app.config["JWT_SECRET"])
+        refreshed_token = pauth.refresh_token(
+            token, current_app.config["JWT_SECRET"]
+        )
         merged_data = {"refreshed_token": refreshed_token, **data}
     else:
         merged_data = data
@@ -39,7 +38,9 @@ def jsonify(data: Dict[str, Any]) -> Response:
     return output  # type: ignore
 
 
-def make_response(df: DataFrame, genera: List[str], request: Request) -> Response:
+def make_response(
+    df: DataFrame, genera: List[str], request: Request
+) -> Response:
     accept = request.accept_mimetypes.best_match([PLOTLY_MT])
     if accept == PLOTLY_MT:
         data = make_plotly_dict(df, genera)
@@ -73,14 +74,14 @@ def authentication() -> Optional[TFlaskResponse]:
     if method and method.lower() not in ("jwt", "bearer"):
         return (
             jsonify({"message": "Unrecognized auth header"}),
-            HTTPStatus.UNAUTHORIZED
+            HTTPStatus.UNAUTHORIZED,
         )
     elif method:
         auth_info = pauth.decode_jwt(token, current_app.config["JWT_SECRET"])
         if not auth_info:
             return (
                 jsonify({"message": "Unable to decode the token"}),
-                HTTPStatus.UNAUTHORIZED
+                HTTPStatus.UNAUTHORIZED,
             )
         g.auth_info = auth_info
     return None
@@ -89,7 +90,9 @@ def authentication() -> Optional[TFlaskResponse]:
 @MAIN.after_app_request
 def cors(response: Response) -> Response:
     response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    response.headers[
+        "Access-Control-Allow-Headers"
+    ] = "Content-Type, Authorization"
     return response
 
 
@@ -139,7 +142,10 @@ def heatmap(genus: str) -> Response:
 @MAIN.route("/upload", methods=["POST"])
 def upload() -> TFlaskResponse:
     if not g.auth_info:
-        return jsonify({"message": "Authorization required"}), HTTPStatus.UNAUTHORIZED
+        return (
+            jsonify({"message": "Authorization required"}),
+            HTTPStatus.UNAUTHORIZED,
+        )
     if not auth.Permission.UPLOAD_DATA in g.auth_info["permissions"]:
         return jsonify({"message": "Access denied"}), HTTPStatus.FORBIDDEN
     dest = current_app.config["UPLOAD_FOLDER"]

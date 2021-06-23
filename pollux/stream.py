@@ -66,7 +66,9 @@ def load_from_www(url: str) -> str:
 
 
 def fetch_from(
-    start_date: date, end_date: date = datetime.now().date(), cache_folder: str = ""
+    start_date: date,
+    end_date: date = datetime.now().date(),
+    cache_folder: str = "",
 ) -> Generator[Datum, None, None]:
     """
     Return a generator over each value starting from start_date until end_date.
@@ -78,7 +80,9 @@ def fetch_from(
 
     while start_date <= end_date:
         LOG.info(
-            "Fetching data for %s (Week #%s)", start_date, start_date.strftime("%U")
+            "Fetching data for %s (Week #%s)",
+            start_date,
+            start_date.strftime("%U"),
         )
         week_number = start_date.isocalendar()[1]
         url_args = [
