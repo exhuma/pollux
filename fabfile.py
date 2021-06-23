@@ -6,6 +6,7 @@ from datetime import datetime
 def develop(context):
     context.run("[ -d env ] || python3 -m venv env", replace_env=False)
     context.run("./env/bin/pip install -e .[dev]", replace_env=False)
+    context.run("pre-commit install", replace_env=False)
 
 
 @task
