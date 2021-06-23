@@ -1,18 +1,20 @@
 from datetime import datetime
 from http import HTTPStatus
+from io import BytesIO
 from os import makedirs
 from os.path import exists, join, splitext
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import jwt
 from flask import Blueprint, current_app, g
 from flask import jsonify as jsonify_orig
+from flask import make_response as make_flask_response
 from flask import request
 from flask.wrappers import Request, Response
-from pandas import DataFrame
+from pandas import DataFrame, read_csv, to_datetime
 from werkzeug.utils import secure_filename
 
 import pollux.auth as pauth
+import pollux.visualisations as vis
 from pollux.cneg import make_plain_dict, make_plotly_dict
 from pollux.datasource import DataSource
 
@@ -181,3 +183,17 @@ def auth() -> TFlaskResponse:
     }
     token = pauth.encode_jwt(jwt_body, current_app.config["JWT_SECRET"])
     return jsonify({"token": token})
+
+
+@MAIN.route("/graph/lineplot")
+def lineplot():
+    df = read_csv("data.csv")
+    df["date"] = df["date"].apply(to_datetime)
+    df = df.set_index("date")
+    fig = vis.lineplot(df)
+    output = BytesIO()
+    fig.savefig(output, format="png")
+    data = output.getvalue()
+    response = make_flask_response(data)
+    response.content_type = "image/png"
+    return response
