@@ -6,6 +6,7 @@ import logging
 from argparse import ArgumentParser, Namespace
 from datetime import date
 from typing import Any, Dict
+from gouge.colourcli import Simple
 
 from .stream import fetch_from
 
@@ -30,7 +31,9 @@ def fetch_csv() -> None:
     """
     args = parse_args()
     if args.verbose:
-        logging.basicConfig(level=logging.INFO)
+        Simple.basicConfig(level=logging.DEBUG, show_exc=True)
+    else:
+        Simple.basicConfig(level=logging.INFO, show_exc=True)
 
     start = date(args.start_year, 1, 1)
     end = date(args.end_year, 12, 31)
