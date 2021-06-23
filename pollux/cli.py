@@ -6,6 +6,7 @@ import logging
 from argparse import ArgumentParser, Namespace
 from datetime import date
 from typing import Any, Dict
+
 from gouge.colourcli import Simple
 
 from .stream import fetch_from

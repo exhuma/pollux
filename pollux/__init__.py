@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterable, Set
 from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup  # type: ignore
+
 from .model import Datum
 
 LOG = logging.getLogger(__name__)

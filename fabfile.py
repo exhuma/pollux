@@ -1,5 +1,6 @@
-from fabric import task
 from datetime import datetime
+
+from fabric import task
 
 
 @task

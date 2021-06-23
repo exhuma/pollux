@@ -2,10 +2,10 @@
 """
 Fetches a data-set for Luxembourg
 """
+import logging
 from argparse import ArgumentParser
 from datetime import datetime, timedelta
 from os.path import exists
-import logging
 
 from ecmwfapi import ECMWFDataServer
 

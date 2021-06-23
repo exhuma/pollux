@@ -2,19 +2,19 @@ from datetime import datetime
 from http import HTTPStatus
 from os import makedirs
 from os.path import exists, join, splitext
-from typing import Any, Dict, Optional, Tuple, Union, List
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import jwt
-import pollux.auth as pauth
 from flask import Blueprint, current_app, g
 from flask import jsonify as jsonify_orig
 from flask import request
-from flask.wrappers import Response, Request
-from werkzeug.utils import secure_filename
+from flask.wrappers import Request, Response
 from pandas import DataFrame
+from werkzeug.utils import secure_filename
 
+import pollux.auth as pauth
+from pollux.cneg import make_plain_dict, make_plotly_dict
 from pollux.datasource import DataSource
-from pollux.cneg import make_plotly_dict, make_plain_dict
 
 MAIN = Blueprint("", __name__)
 

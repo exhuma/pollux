@@ -14,9 +14,10 @@ pygrib docs:
 """
 
 import logging
-import pygrib
 from argparse import ArgumentParser
 from collections import namedtuple
+
+import pygrib
 
 Measurement = namedtuple("Measurement", "name date value")
 

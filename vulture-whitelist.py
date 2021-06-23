@@ -1,7 +1,7 @@
+import pollux.api as api
+import pollux.blueprint.main as bpmain
 import pollux.default_settings as stng
 from pollux.cli import fetch_csv
-import pollux.blueprint.main as bpmain
-import pollux.api as api
 
 stng.JWT_SECRET
 stng.AUTH_FILE
