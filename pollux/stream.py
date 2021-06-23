@@ -1,6 +1,6 @@
 import logging
 from datetime import date, datetime, timedelta
-from os import makedirs
+from os import makedirs, unlink
 from os.path import exists, join
 from typing import Any, Generator, List
 from urllib.parse import parse_qs, urlencode, urlsplit
@@ -9,6 +9,7 @@ from pollux import parse_html
 from pollux.model import Datum
 
 LOG = logging.getLogger(__name__)
+CACHE_ENCODING = "utf8"
 
 
 class Cache:
@@ -29,7 +30,7 @@ class Cache:
         LOG.debug("Fetching from cache: %r", url)
         filename = self._url_to_filename(url)
         if exists(filename):
-            with open(filename, encoding="latin-1") as fp:
+            with open(filename, encoding=CACHE_ENCODING) as fp:
                 data = fp.read()
         else:
             data = ""
@@ -42,8 +43,18 @@ class Cache:
         filename = self._url_to_filename(url)
         if exists(filename):
             raise IOError("File %r exists!" % filename)
-        with open(filename, "w", encoding="latin-1") as fp:
-            fp.write(data)
+        with open(filename, "w", encoding=CACHE_ENCODING) as fp:
+            try:
+                fp.write(data)
+                success = True
+            except:
+                breakpoint()
+                LOG.debug("Unable to store data in cache.", exc_info=True)
+                success = False
+        # The "with" block will always create the file, even if storing data
+        # fails. So we need to clean up if necessary.
+        if not success and exists(filename):
+            unlink(filename)
 
 
 def load_from_www(url: str) -> str:
@@ -84,7 +95,7 @@ def fetch_from(
 
         if not html:
             html = load_from_www(url)
-            if cache:
+            if cache and html:
                 cache.put(url, html)
 
         if not html:
