@@ -19,7 +19,7 @@ def fetch_data(context):
 
 
 @task
-def run_web(context):
+def run(context):
     context.run(
         "./env/bin/flask run --reload",
         env={"FLASK_APP": "pollux.api:make_app"},
