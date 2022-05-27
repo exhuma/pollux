@@ -22,6 +22,7 @@ setup(
         "gouge >=1.5.0, <2.0",
         "seaborn >= 0.11.1",
         "importlib_metadata >=2.0.0, <3.0; python_version<'3.8'",
+        "markupsafe==2.0.1",
     ],
     entry_points={
         "console_scripts": [
