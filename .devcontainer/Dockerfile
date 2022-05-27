@@ -12,7 +12,10 @@ RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "umask 0002 && . /usr/l
 RUN pip install fabric pre-commit
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends zsh vim-nox
+    && apt-get -y install --no-install-recommends \
+    zsh \
+    entr \
+    vim-nox
 
 RUN su vscode -c "cd && git clone https://github.com/exhuma/dotfiles && cd dotfiles && ./install -c" 2>&1
 RUN su vscode -c "cd ~/dotfiles && bash bootstrap_common" 2>&1
