@@ -65,3 +65,18 @@ def refresh_token(token: str, secret: str) -> str:
         return ""
     output = encode_jwt(auth_info, secret)
     return output
+
+
+def with_refreshed_token(
+    auth_header: str, jwt_secret: str, data: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    If the *auth_header* value contains a JWT token, return a new dictionary
+    with the addional key "refreshed_token" that contains a token with updated
+    expiry time
+    """
+    _, _, token = auth_header.partition(" ")
+    if token:
+        refreshed_token = refresh_token(token, jwt_secret)
+        return {"refreshed_token": refreshed_token, **data}
+    return data
