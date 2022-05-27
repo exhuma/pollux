@@ -1,5 +1,15 @@
 {
     "files.exclude": {
         "**/__pycache__": true
+    },
+    "python.linting.pylintEnabled": true,
+    "editor.rulers": [
+        80
+    ],
+    "python.analysis.typeCheckingMode": "strict",
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
     }
 }
