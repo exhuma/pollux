@@ -18,6 +18,7 @@ LOG = logging.getLogger(__name__)
 class Permission(str, Enum):
 
     UPLOAD_DATA = "upload_data"
+    READ_ONLY = "read_only"
 
 
 def auth(username: str, password: str, authfile: str) -> Set[Permission]:
@@ -80,3 +81,30 @@ def with_refreshed_token(
         refreshed_token = refresh_token(token, jwt_secret)
         return {"refreshed_token": refreshed_token, **data}
     return data
+
+
+def is_valid_request(auth_header: str, jwt_secret: str) -> bool:
+    """
+    Returns true if a request is allowed to pass through, false otherwise.
+    """
+    method, _, token = auth_header.partition(" ")
+    if method.lower() in ("jwt", "bearer"):
+        auth_info = decode_jwt(token, jwt_secret)
+        if not auth_info:
+            return False
+        return True
+    if method:
+        return False
+    return True
+
+
+def is_allowed_to_upload(auth_info: Dict[str, Any]) -> bool:
+    """
+    Check if the identity embedded in the auth-header is allowed to upload new
+    files.
+    """
+    if not auth_info:
+        return False
+    if Permission.UPLOAD_DATA not in auth_info["permissions"]:
+        return False
+    return True

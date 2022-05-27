@@ -1,21 +1,22 @@
+# type: ignore
 from datetime import datetime
 from http import HTTPStatus
-from io import BytesIO
 from os import makedirs
-from os.path import exists, join, splitext
-from typing import Any, Dict, List, Optional, Tuple, Union
+from os.path import exists, join
+from typing import List, Optional, Tuple, Union
 
 from flask import Blueprint, current_app, g, jsonify
 from flask import make_response as make_flask_response
 from flask import request
 from flask.wrappers import Request, Response
-from pandas import DataFrame, read_csv, to_datetime
+from pandas import DataFrame
+from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
 import pollux.auth as pauth
-import pollux.visualisations as vis
 from pollux.cneg import make_plain_dict, make_plotly_dict
 from pollux.datasource import DataSource
+from pollux.uploads import allowed_file
 
 MAIN = Blueprint("", __name__)
 
@@ -23,6 +24,16 @@ TFlaskResponse = Union[Response, Tuple[Response, HTTPStatus]]
 
 #: The media-type used for plotly output
 PLOTLY_MT = "application/prs.plotlydict+json"
+
+
+def _store_file(filename: str, object: FileStorage) -> None:
+    """
+    Store the Flask file-object into the given file-name
+
+    This function exists to aid in unit-testing
+    """
+    filename = join(dest, secure_filename(filename))  # type: ignore
+    file_storage.save(filename)
 
 
 def make_response(
@@ -45,11 +56,6 @@ def make_response(
     return response
 
 
-def allowed_file(filename: str) -> bool:
-    _, ext = splitext(filename)
-    return ext.lower() in {".csv"}
-
-
 @MAIN.before_app_request
 def globals() -> None:
     ds = getattr(g, "data_source", None)
@@ -61,34 +67,25 @@ def globals() -> None:
 @MAIN.before_app_request
 def authentication() -> Optional[TFlaskResponse]:
     auth_header = request.headers.get("Authorization", "")
-    method, _, token = auth_header.partition(" ")
+    _, _, token = auth_header.partition(" ")
     g.auth_info = {}
-    if method and method.lower() not in ("jwt", "bearer"):
+    if not pauth.is_valid_request(
+        auth_header, current_app.config["JWT_SECRET"]
+    ):
         return (
             jsonify(
                 pauth.with_refreshed_token(
                     auth_header,
                     current_app.config["JWT_SECRET"],
-                    {"message": "Unrecognized auth header"},
+                    {"message": "Unable to decode the token"},
                 )
             ),
             HTTPStatus.UNAUTHORIZED,
         )
-    elif method:
-        auth_info = pauth.decode_jwt(token, current_app.config["JWT_SECRET"])
-        if not auth_info:
-            return (
-                jsonify(
-                    pauth.with_refreshed_token(
-                        auth_header,
-                        current_app.config["JWT_SECRET"],
-                        {"message": "Unable to decode the token"},
-                    )
-                ),
-                HTTPStatus.UNAUTHORIZED,
-            )
-        g.auth_info = auth_info
-    return None
+        return None
+
+    auth_info = pauth.decode_jwt(token, current_app.config["JWT_SECRET"])
+    g.auth_info = auth_info
 
 
 @MAIN.after_app_request
@@ -161,18 +158,8 @@ def heatmap(genus: str) -> Response:
 @MAIN.route("/upload", methods=["POST"])
 def upload() -> TFlaskResponse:
     auth_header = request.headers.get("Authorization", "")
-    if not g.auth_info:
-        return (
-            jsonify(
-                pauth.with_refreshed_token(
-                    auth_header,
-                    current_app.config["JWT_SECRET"],
-                    {"message": "Authorization required"},
-                )
-            ),
-            HTTPStatus.UNAUTHORIZED,
-        )
-    if not auth.Permission.UPLOAD_DATA in g.auth_info["permissions"]:
+
+    if not pauth.is_allowed_to_upload(g.auth_info):
         return (
             jsonify(
                 pauth.with_refreshed_token(
@@ -189,12 +176,12 @@ def upload() -> TFlaskResponse:
     if len(request.files) != 1:
         return jsonify(pauth.with_refreshed_token(auth_header, current_app.config["JWT_SECRET"], {"message": "Expecting exactly one file!"})), 400  # type: ignore
 
-    filename, data = list(request.files.items())[0]
+    filename, file_storage = list(request.files.items())[0]
 
     if not allowed_file(filename):
         return jsonify(pauth.with_refreshed_token(auth_header, current_app.config["JWT_SECRET"], {"message": "Unsupported file-extension"})), 400  # type: ignore
-    filename = join(dest, secure_filename(filename))  # type: ignore
-    data.save(filename)
+
+    _store_file(filename, file_storage)
 
     return jsonify(
         pauth.with_refreshed_token(
@@ -238,13 +225,7 @@ def auth() -> TFlaskResponse:
 
 @MAIN.route("/graph/lineplot")
 def lineplot():
-    df = read_csv("data.csv")
-    df["date"] = df["date"].apply(to_datetime)
-    df = df.set_index("date")
-    fig = vis.lineplot(df)
-    output = BytesIO()
-    fig.savefig(output, format="png")
-    data = output.getvalue()
-    response = make_flask_response(data)
-    response.content_type = "image/png"
+    image_data, image_type = g.data_source.lineplot()
+    response = make_flask_response(image_data)
+    response.content_type = image_type
     return response

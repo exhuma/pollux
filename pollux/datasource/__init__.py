@@ -1,9 +1,11 @@
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Optional
+from io import BytesIO
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
+import pollux.visualisations as vis
 from pollux.cneg import PlotlyDict
 
 
@@ -69,3 +71,18 @@ class PandasDS(DataSource):
 
         data = {"z": data, "y": y, "x": x, "type": "heatmap"}
         return data
+
+    def lineplot(self) -> Tuple[bytes, str]:
+        """
+        Generate a lineplot as PNG image
+
+        This is a "sandbox" function for quick tests.
+        """
+        df = pd.read_csv("data.csv")
+        df["date"] = df["date"].apply(pd.to_datetime)
+        df = df.set_index("date")
+        fig = vis.lineplot(df)
+        output = BytesIO()
+        fig.savefig(output, format="png")
+        data = output.getvalue()
+        return (data, "image/png")
