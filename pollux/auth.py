@@ -108,3 +108,13 @@ def is_allowed_to_upload(auth_info: Dict[str, Any]) -> bool:
     if Permission.UPLOAD_DATA not in auth_info["permissions"]:
         return False
     return True
+
+
+def create_auth_info(
+    authorization_header: str, jwt_secret: str
+) -> Dict[str, Any]:
+    """
+    Convert the authorization header into an auth-info object
+    """
+    _, _, token = authorization_header.partition(" ")
+    return decode_jwt(token, jwt_secret)

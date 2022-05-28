@@ -3,30 +3,26 @@ from datetime import datetime
 from http import HTTPStatus
 from os import makedirs
 from os.path import exists, join
-from typing import List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-from flask import Blueprint, current_app, g, jsonify
-from flask import make_response as make_flask_response
-from flask import request
-from flask.wrappers import Request, Response
+from fastapi import APIRouter, Depends, Header, Query, Response, UploadFile
+from fastapi.responses import JSONResponse, RedirectResponse
 from pandas import DataFrame
-from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
 
 import pollux.auth as pauth
-from pollux.cneg import make_plain_dict, make_plotly_dict
+from pollux.cneg import best_accept_match, make_plain_dict, make_plotly_dict
 from pollux.datasource import DataSource
+from pollux.dependencies import get_data_source, get_settings
+from pollux.model import Credentials
+from pollux.settings import Settings
 from pollux.uploads import allowed_file
-
-MAIN = Blueprint("", __name__)
-
-TFlaskResponse = Union[Response, Tuple[Response, HTTPStatus]]
 
 #: The media-type used for plotly output
 PLOTLY_MT = "application/prs.plotlydict+json"
+ROUTER = APIRouter()
 
 
-def _store_file(filename: str, object: FileStorage) -> None:
+def _store_file(filename: str, object: Any) -> None:
     """
     Store the Flask file-object into the given file-name
 
@@ -37,195 +33,177 @@ def _store_file(filename: str, object: FileStorage) -> None:
 
 
 def make_response(
-    df: DataFrame, genera: List[str], request: Request
-) -> Response:
-    accept = request.accept_mimetypes.best_match([PLOTLY_MT])
+    df: DataFrame,
+    genera: List[str],
+    jwt_secret: str,
+    accept_mimetype: str,
+    authorization: str,
+) -> Any:
+    """
+    Create a valid HTTP response from a Pandas Dataframe
+    """
+    accept = best_accept_match(accept_mimetype, ["application/json", PLOTLY_MT])
     if accept == PLOTLY_MT:
         data = make_plotly_dict(df, genera)
-        content_type = PLOTLY_MT
     else:
         data = make_plain_dict(df)
-        content_type = "application/json"
-    auth_header = request.headers.get("Authorization", "")
-    response = jsonify(
-        pauth.with_refreshed_token(
-            auth_header, current_app.config["JWT_SECRET"], data
-        )
+    response = JSONResponse(
+        content=pauth.with_refreshed_token(authorization, jwt_secret, data),
+        headers={"content_type": accept},
     )
-    response.content_type = content_type
     return response
 
 
-@MAIN.before_app_request
-def globals() -> None:
-    ds = getattr(g, "data_source", None)
-    if not ds:
-        ds = DataSource.default()
-        g.data_source = ds
+@ROUTER.get("/")
+async def index() -> Dict[str, Any]:
+    """
+    Main index
+    """
+    return RedirectResponse("/docs")
 
 
-@MAIN.before_app_request
-def authentication() -> Optional[TFlaskResponse]:
-    auth_header = request.headers.get("Authorization", "")
-    _, _, token = auth_header.partition(" ")
-    g.auth_info = {}
-    if not pauth.is_valid_request(
-        auth_header, current_app.config["JWT_SECRET"]
-    ):
-        return (
-            jsonify(
-                pauth.with_refreshed_token(
-                    auth_header,
-                    current_app.config["JWT_SECRET"],
-                    {"message": "Unable to decode the token"},
-                )
+@ROUTER.get("/recent")
+async def recent(
+    num_days: int = Query(default=7),
+    genus: Optional[List[str]] = Query(default=None),
+    data_source: DataSource = Depends(get_data_source),
+    settings: Settings = Depends(get_settings),
+    authorization: str = Header(default=""),
+    accept: str = Header(),
+) -> Any:
+    genus = genus or []
+    dataframe = data_source.recent(num_days=num_days, genera=genus)
+    return make_response(
+        dataframe, genus, settings.jwt_secret, accept, authorization
+    )
+
+
+@ROUTER.get("/between/{start}/{end}")
+async def between(
+    start: str,
+    end: str,
+    genus: Optional[List[str]] = Query(default=None),
+    authorization: str = Header(default=""),
+    data_source: DataSource = Depends(get_data_source),
+    settings: Settings = Depends(get_settings),
+    accept: str = Header(),
+) -> Any:
+    """
+    Return daily concentrations of pollen between two dates
+    """
+    genus = genus or []
+    start_date = datetime.strptime(start, "%Y-%m-%d")
+    end_date = datetime.strptime(end, "%Y-%m-%d")
+    dataframe = data_source.between(start_date, end_date, genera=genus)
+    return make_response(
+        dataframe, genus, settings.jwt_secret, accept, authorization
+    )
+
+
+@ROUTER.get("/genera")
+async def genera(
+    authorization: str = Header(default=""),
+    data_source: DataSource = Depends(get_data_source),
+    settings: Settings = Depends(get_settings),
+) -> Any:
+    """
+    Return all available "genera" (type) of pollen.
+    """
+    data = data_source.genera()
+    return pauth.with_refreshed_token(authorization, settings.jwt_secret, data)
+
+
+@ROUTER.get("/heatmap/{genus}")
+async def heatmap(
+    genus: str,
+    data_source: DataSource = Depends(get_data_source),
+    authorization: str = Header(default=""),
+    settings: Settings = Depends(get_settings),
+) -> Any:
+    """
+    Return a heatmap of historical values of a specific pollen genus
+    """
+    data = data_source.heatmap(genus)
+    return pauth.with_refreshed_token(authorization, settings.jwt_secret, data)
+
+
+@ROUTER.post("/upload")
+async def upload(
+    file: UploadFile,
+    authorization: str = Header(default=""),
+    settings: Settings = Depends(get_settings),
+) -> Any:
+    auth_info = pauth.create_auth_info(authorization, settings.jwt_secret)
+    if not pauth.is_allowed_to_upload(auth_info):
+        return JSONResponse(
+            content=pauth.with_refreshed_token(
+                authorization,
+                settings.jwt_secret,
+                {"message": "Access denied"},
             ),
-            HTTPStatus.UNAUTHORIZED,
+            status_code=HTTPStatus.FORBIDDEN,
         )
-        return None
-
-    auth_info = pauth.decode_jwt(token, current_app.config["JWT_SECRET"])
-    g.auth_info = auth_info
-
-
-@MAIN.after_app_request
-def cors(response: Response) -> Response:
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers[
-        "Access-Control-Allow-Headers"
-    ] = "Content-Type, Authorization"
-    return response
-
-
-@MAIN.route("/")
-def index() -> Response:
-    auth_header = request.headers.get("Authorization", "")
-    return jsonify(
-        pauth.with_refreshed_token(
-            auth_header,
-            current_app.config["JWT_SECRET"],
-            {
-                "_links": {
-                    "recent": {
-                        "href": "/recent",
-                        "title": "Fetch data for the last <n> days",
-                    }
-                }
-            },
-        )
-    )
-
-
-@MAIN.route("/recent")
-def recent() -> Response:
-    num_days = int(request.args.get("num_days", 7))
-    genera = request.args.getlist("genus")
-    df = g.data_source.recent(num_days=num_days, genera=genera)
-    return make_response(df, genera, request)
-
-
-@MAIN.route("/between/<start>/<end>")
-def between(start: str, end: str) -> Response:
-    startDate = datetime.strptime(start, "%Y-%m-%d")
-    endDate = datetime.strptime(end, "%Y-%m-%d")
-    genera = request.args.getlist("genus")
-    df = g.data_source.between(startDate, endDate, genera=genera)
-    return make_response(df, genera, request)
-
-
-@MAIN.route("/genera")
-def genera() -> Response:
-    data = g.data_source.genera()
-    auth_header = request.headers.get("Authorization", "")
-    return jsonify(
-        pauth.with_refreshed_token(
-            auth_header, current_app.config["JWT_SECRET"], data
-        )
-    )
-
-
-@MAIN.route("/heatmap/<genus>")
-def heatmap(genus: str) -> Response:
-    data = g.data_source.heatmap(genus)
-    auth_header = request.headers.get("Authorization", "")
-    return jsonify(
-        pauth.with_refreshed_token(
-            auth_header, current_app.config["JWT_SECRET"], data
-        )
-    )
-
-
-@MAIN.route("/upload", methods=["POST"])
-def upload() -> TFlaskResponse:
-    auth_header = request.headers.get("Authorization", "")
-
-    if not pauth.is_allowed_to_upload(g.auth_info):
-        return (
-            jsonify(
-                pauth.with_refreshed_token(
-                    auth_header,
-                    current_app.config["JWT_SECRET"],
-                    {"message": "Access denied"},
-                )
-            ),
-            HTTPStatus.FORBIDDEN,
-        )
-    dest = current_app.config["UPLOAD_FOLDER"]
+    dest = settings.upload_folder
     if not exists(dest):
         makedirs(dest)
-    if len(request.files) != 1:
-        return jsonify(pauth.with_refreshed_token(auth_header, current_app.config["JWT_SECRET"], {"message": "Expecting exactly one file!"})), 400  # type: ignore
 
-    filename, file_storage = list(request.files.items())[0]
-
-    if not allowed_file(filename):
-        return jsonify(pauth.with_refreshed_token(auth_header, current_app.config["JWT_SECRET"], {"message": "Unsupported file-extension"})), 400  # type: ignore
+    if not allowed_file(file.filename):
+        return JSONResponse(
+            content=pauth.with_refreshed_token(
+                authorization,
+                settings.jwt_secret,
+                {"message": "Unsupported file-extension"},
+            ),
+            status_code=400,
+        )
 
     _store_file(filename, file_storage)
 
     return jsonify(
         pauth.with_refreshed_token(
-            auth_header, current_app.config["JWT_SECRET"], {"status": "OK"}
+            authorization, current_app.config["JWT_SECRET"], {"status": "OK"}
         )
     )
 
 
-@MAIN.route("/auth", methods=["POST"])
-def auth() -> TFlaskResponse:
-    auth_header = request.headers.get("Authorization", "")
-    payload = request.json
+@ROUTER.post("/auth")
+async def auth(
+    credentials: Credentials,
+    authorization=Header(default=""),
+    settings=Depends(get_settings),
+) -> Any:
+    """
+    Login to the application
+    """
     permissions = pauth.auth(
-        payload["username"],
-        payload["password"],
-        current_app.config["AUTH_FILE"],
+        credentials.username,
+        credentials.password,
+        settings.auth_file,
     )
     if not permissions:
-        return (
-            jsonify(
-                pauth.with_refreshed_token(
-                    auth_header,
-                    current_app.config["JWT_SECRET"],
-                    {"message": "Access Denied"},
-                )
+        return JSONResponse(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            content=pauth.with_refreshed_token(
+                authorization,
+                settings.jwt_secret,
+                {"message": "Access Denied"},
             ),
-            HTTPStatus.UNAUTHORIZED,
         )
 
     jwt_body = {
-        "username": payload["username"],
+        "username": credentials.username,
         "permissions": [perm.value for perm in permissions],
     }
-    token = pauth.encode_jwt(jwt_body, current_app.config["JWT_SECRET"])
-    return jsonify(
-        pauth.with_refreshed_token(
-            auth_header, current_app.config["JWT_SECRET"], {"token": token}
-        )
+    token = pauth.encode_jwt(jwt_body, settings.jwt_secret)
+    return pauth.with_refreshed_token(
+        authorization, settings.jwt_secret, {"token": token}
     )
 
 
-@MAIN.route("/graph/lineplot")
-def lineplot():
-    image_data, image_type = g.data_source.lineplot()
-    response = make_flask_response(image_data)
-    response.content_type = image_type
+@ROUTER.get("/graph/lineplot")
+async def lineplot(
+    data_source: DataSource = Depends(get_data_source),
+):
+    image_data, image_type = data_source.lineplot()
+    response = Response(content=image_data, media_type=image_type)
     return response
