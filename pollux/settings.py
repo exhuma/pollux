@@ -8,3 +8,6 @@ class Settings(BaseSettings):
 
     # Limit files to 16 MBs
     max_content_length: int = 16 * 1024 * 1024
+
+    #: The CSV file containing our data
+    filename: str = "data.csv"
