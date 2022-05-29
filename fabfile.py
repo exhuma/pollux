@@ -3,8 +3,6 @@ from getpass import getpass
 
 from fabric import task
 
-from pollux.auth import hash_pw
-
 
 @task
 def develop(context):
@@ -24,14 +22,16 @@ def fetch_data(context):
 @task
 def run(context):
     context.run(
-        "./env/bin/flask run --reload",
-        env={"FLASK_APP": "pollux.api:make_app"},
+        "./env/bin/uvicorn pollux.api:make_app --reload",
         replace_env=False,
+        pty=True,
     )
 
 
 @task
 def hashpw(context):
+    from pollux.auth import hash_pw
+
     password = getpass()
     hashed_pw = hash_pw(password)
     print("Password Hash: %s" % hashed_pw)
