@@ -40,5 +40,5 @@ def lineplot(
         timespan = filtered.index >= start
     data = filtered.loc[timespan]
     figure = plt.figure(figsize=(32, 20))
-    sns.lineplot(x=data.index, y="Gramineae", data=data)
+    sns.lineplot(x=data.index, y=genus, data=data)
     return figure

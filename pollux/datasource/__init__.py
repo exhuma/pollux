@@ -72,7 +72,7 @@ class PandasDS(DataSource):
         data = {"z": data, "y": y, "x": x, "type": "heatmap"}
         return data
 
-    def lineplot(self) -> Tuple[bytes, str]:
+    def lineplot(self, genus: str) -> Tuple[bytes, str]:
         """
         Generate a lineplot as PNG image
 
@@ -81,7 +81,7 @@ class PandasDS(DataSource):
         df = pd.read_csv("data.csv")
         df["date"] = df["date"].apply(pd.to_datetime)
         df = df.set_index("date")
-        fig = vis.lineplot(df)
+        fig = vis.lineplot(df, genus=genus)
         output = BytesIO()
         fig.savefig(output, format="png")
         data = output.getvalue()

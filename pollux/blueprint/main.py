@@ -200,10 +200,11 @@ async def auth(
     )
 
 
-@ROUTER.get("/graph/lineplot")
+@ROUTER.get("/graph/lineplot/{genus}")
 async def lineplot(
+    genus: str,
     data_source: DataSource = Depends(get_data_source),
 ):
-    image_data, image_type = data_source.lineplot()
+    image_data, image_type = data_source.lineplot(genus)
     response = Response(content=image_data, media_type=image_type)
     return response
