@@ -11,3 +11,6 @@ class Settings(BaseSettings):
 
     #: The CSV file containing our data
     filename: str = "data.csv"
+
+    #: Local storage of scraped data-files
+    scraping_cache: str = "cache"

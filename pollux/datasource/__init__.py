@@ -57,13 +57,6 @@ class PandasDS:
         Initialise a PandasDS source from a given filename. If the file does not
         exist, fetch the last month of data as initialisation.
         """
-        if not exists(filename):
-            now = datetime.now()
-            to_csv(
-                date(now.year, now.month - 1, 1),
-                date(now.year, now.month, 31),
-                filename,
-            )
         return PandasDS(filename)
 
     def __init__(self, filename: str) -> None:
