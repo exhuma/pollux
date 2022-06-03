@@ -60,6 +60,9 @@ module.exports = function (ctx) {
     },
 
     build: {
+      env: {
+        VUE_POLLUX_API: process.env.VUE_POLLUX_API
+      },
       scopeHoisting: true,
       // vueRouterMode: 'history',
       // vueCompiler: true,

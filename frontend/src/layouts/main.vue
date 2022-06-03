@@ -199,7 +199,7 @@ export default {
   },
   created () {
     this.token = localStorage.getItem('token') || ''
-    this.proxy = new Proxy('http://localhost:5000', this.token)
+    this.proxy = new Proxy(process.env.VUE_POLLUX_API, this.token)
     getLanguage(this.proxy).then(value => {
       this.lang = value
     })
