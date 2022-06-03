@@ -58,9 +58,9 @@ def test_lineplot(fixture_objects: Tuple[TestClient, PandasDS]):
         b"example-bytes",
         "application/octet-stream",
     )
-    response: Response = client.get("/graph/lineplot")
+    response: Response = client.get("/graph/lineplot/genus")
     assert response.status_code == 200
-    datasource.lineplot.assert_called_with()
+    datasource.lineplot.assert_called_with("genus")
     assert response.content == b"example-bytes"
     assert response.headers["Content-Type"] == "application/octet-stream"
 
