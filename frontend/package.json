@@ -13,7 +13,6 @@
   "dependencies": {
     "@intlify/vue-i18n-loader": "^1.0.0",
     "@quasar/extras": "^1.9.4",
-    "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "plotly": "^1.0.6",
     "plotly.js": "^1.54.7",
