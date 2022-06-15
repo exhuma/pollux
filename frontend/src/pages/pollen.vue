@@ -57,7 +57,6 @@ export default {
         })
         .catch(e => {
           if (e.message === 'Authorization failed') {
-            console.log(e.message)
             this.$emit('tokenChanged', '')
           } else {
             throw e

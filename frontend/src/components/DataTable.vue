@@ -42,7 +42,6 @@ export default {
         sortable: true,
         style: 'width: 100px'
       }]
-      console.log(this.genera)
       for (const entry of Object.entries(firstRow)) {
         if (
           entry[0].toLowerCase() === 'date' ||
