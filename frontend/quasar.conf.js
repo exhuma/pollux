@@ -9,6 +9,8 @@ module.exports = function (ctx) {
       'i18n'
     ],
 
+    supportTS: true,
+
     css: [
       'app.styl'
     ],

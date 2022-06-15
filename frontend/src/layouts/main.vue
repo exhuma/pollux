@@ -120,7 +120,7 @@
 </template>
 
 <script>
-import { Proxy } from 'src/proxy.js'
+import { Proxy } from 'src/proxy'
 
 function getLanguage (proxy) {
   return proxy.getSupportedLanguages()
