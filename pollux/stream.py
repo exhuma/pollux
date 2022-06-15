@@ -1,6 +1,8 @@
+import csv
 import logging
+import threading
 from datetime import date, datetime, timedelta
-from typing import Generator
+from typing import Any, Dict, Generator
 from urllib.parse import urlencode
 
 from pollux import parse_html
@@ -8,6 +10,7 @@ from pollux.cache import Cache
 from pollux.model import Datum
 
 LOG = logging.getLogger(__name__)
+LOCK = threading.Lock()
 
 
 def load_from_www(url: str) -> str:
@@ -63,3 +66,52 @@ def fetch_from(
         start_date = start_date + timedelta(weeks=1)
         for row in data:
             yield row
+
+
+def to_csv(
+    start: date, end: date, filename: str, cache_folder: str = "cache"
+) -> None:
+    """
+    Scrape the pollen.lu site for data between two dates and write it into a CSV
+    file.
+    """
+    rows = sorted(
+        fetch_from(start, end, cache_folder=cache_folder), key=lambda x: x.date
+    )
+
+    names = sorted({row.lname for row in rows})
+    collection: Dict[date, Dict[str, Any]] = {}
+    for datum in rows:
+        daily = collection.setdefault(datum.date, {})
+        daily[datum.lname] = datum.value
+
+    # Add the header
+    output_rows = [["date"] + names]
+
+    # Add the data-rows
+    for item_date, values in sorted(collection.items(), key=lambda x: x[0]):
+        row = [str(item_date)]
+        for name in names:
+            row.append(values[name])
+        output_rows.append(row)
+    with open(filename, "w", encoding="utf8") as fptr:
+        writer = csv.writer(fptr)
+        writer.writerows(output_rows)
+    LOG.info("Data written to %r", filename)
+
+
+def background_download(
+    start: date, end: date, filename: str, cache: str = ""
+) -> None:
+    if LOCK.acquire(blocking=False):
+        thread = threading.Thread(
+            target=to_csv,
+            kwargs={
+                "start": start,
+                "end": end,
+                "filename": f"{filename}",
+                "cache_folder": cache,
+            },
+            daemon=True,
+        )
+        thread.start()
