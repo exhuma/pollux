@@ -1,3 +1,6 @@
+# type: ignore
+# pylint: skip-file
+
 from datetime import datetime
 from getpass import getpass
 
